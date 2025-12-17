@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 import jakarta.persistence.*;
-@entity
+@Entity
 public class student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class student {
         this.email=email;
     }
     public student(){
-        
+
     }
 public student(Integer id,String name,String email){
     this.id=id;
