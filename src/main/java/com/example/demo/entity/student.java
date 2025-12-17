@@ -1,16 +1,16 @@
 package com.example.demo.entity;
-import java.time.LocalDate;
+import jakarta.persistence.*;
 @entity
 public class student {
-    private int id;
+    @id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String name;
     private String email;
-    private LocalDate dob;
-    private float cgpa;
     public int getId(){
         return id;
     }
-    public void setId(int id){
+    public void setId(Integer id){
 
         this.id=id;
     }
