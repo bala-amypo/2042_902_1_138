@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 import java.time.LocalDate;
+@entity
 public class student {
     private int id;
     private String name;
