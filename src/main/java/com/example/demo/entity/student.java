@@ -7,6 +7,7 @@ public class student {
     private Integer id;
     private String name;
     private String email;
+
     public int getId(){
         return id;
     }
