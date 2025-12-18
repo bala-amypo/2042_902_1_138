@@ -1,26 +1,62 @@
-package com.example.demo.config;
+package com.example.demo.security;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+import javax.crypto.SecretKey;
+import java.util.Date;
 
-@Configuration
-public class OpenApiConfig {
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Hotel Key Management API")
-                        .version("1.0")
-                        .description("API for Hotel Room Key Management System"))
-                .servers(List.of(
-                        new Server().url("https://9030.pro604cr.amypo.ai/").description("Production Server"),
-                        new Server().url("http://localhost:9001").description("Local Development")
-                ));
+@Component
+public class JwtTokenProvider {
+    
+    private final SecretKey jwtSecret;
+    private final long jwtExpirationMs = 86400000; // 24 hours
+    
+    public JwtTokenProvider() {
+        // FIX: Corrected method call for JJWT 0.12.x
+        this.jwtSecret = Keys.secretKeyFor(io.jsonwebtoken.Jwts.SIG.HS256);
+    }
+    
+    public String generateToken(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .issuedAt(now)
+                .expiration(expiryDate)
+                // FIX: Use .signWith(jwtSecret) without specifying the algorithm
+                .signWith(jwtSecret)
+                .compact();
+    }
+    
+    public String getUsernameFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(jwtSecret)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            
+            return claims.getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+    
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(jwtSecret)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }
