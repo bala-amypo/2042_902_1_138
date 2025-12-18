@@ -2,37 +2,62 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "guests")
 public class Guest {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false) 
+    @Column(name = "full_name", nullable = false)
     private String fullName;
     
-    @Column(unique = true, nullable = false) 
+    @Column(unique = true, nullable = false)
     private String email;
     
+    @Column(name = "phone_number")
     private String phoneNumber;
     
-    @Column(nullable = false) 
-    private String password;  // ADD THIS LINE
+    @Column(nullable = false)
+    private String password;
     
+    @Column(nullable = false)
     private Boolean verified = false;
-    private Boolean active = true;
-    private String role = "GUEST";
     
-    @Column(nullable = false) 
+    @Column(nullable = false)
+    private Boolean active = true;
+    
+    @Column(nullable = false)
+    private String role = "ROLE_USER";
+    
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
     
-    @PrePersist
-    protected void onCreate() { 
-        createdAt = new Timestamp(System.currentTimeMillis()); 
+    public Guest() {}
+    
+    public Guest(String fullName, String email, String phoneNumber, String password, 
+                 Boolean verified, Boolean active, String role, Timestamp createdAt) {
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.verified = verified != null ? verified : false;
+        this.active = active != null ? active : true;
+        this.role = role != null ? role : "ROLE_USER";
+        this.createdAt = createdAt;
     }
     
-    // GETTERS AND SETTERS (include password)
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = Timestamp.valueOf(LocalDateTime.now());
+        }
+    }
+    
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -45,8 +70,8 @@ public class Guest {
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     
-    public String getPassword() { return password; }  // ADD THIS
-    public void setPassword(String password) { this.password = password; }  // ADD THIS
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     
     public Boolean getVerified() { return verified; }
     public void setVerified(Boolean verified) { this.verified = verified; }
