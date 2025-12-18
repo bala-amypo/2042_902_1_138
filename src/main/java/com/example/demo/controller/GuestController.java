@@ -2,42 +2,42 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Guest;
 import com.example.demo.service.GuestService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/guests")
+@RequestMapping("/api/guests")
 public class GuestController {
-
     private final GuestService guestService;
-
+    
     public GuestController(GuestService guestService) {
         this.guestService = guestService;
     }
-
-    @PostMapping
-    public Guest createGuest(@RequestBody Guest guest) {
-        return guestService.createGuest(guest);
+    
+    @PostMapping("/")
+    public ResponseEntity<Guest> createGuest(@RequestBody Guest guest) {
+        return ResponseEntity.ok(guestService.createGuest(guest));
     }
-
-    @GetMapping
-    public List<Guest> getAllGuests() {
-        return guestService.getAllGuests();
-    }
-
-    @GetMapping("/{id}")
-    public Guest getGuestById(@PathVariable Long id) {
-        return guestService.getGuestById(id);
-    }
-
+    
     @PutMapping("/{id}")
-    public Guest updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
-        return guestService.updateGuest(id, guest);
+    public ResponseEntity<Guest> updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
+        return ResponseEntity.ok(guestService.updateGuest(id, guest));
     }
-
-    @DeleteMapping("/{id}")
-    public void deleteGuest(@PathVariable Long id) {
-        guestService.deleteGuest(id);
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Guest> getGuest(@PathVariable Long id) {
+        return ResponseEntity.ok(guestService.getGuestById(id));
+    }
+    
+    @GetMapping("/")
+    public ResponseEntity<List<Guest>> getAllGuests() {
+        return ResponseEntity.ok(guestService.getAllGuests());
+    }
+    
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivateGuest(@PathVariable Long id) {
+        guestService.deactivateGuest(id);
+        return ResponseEntity.ok().build();
     }
 }
