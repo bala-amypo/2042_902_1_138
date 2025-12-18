@@ -33,13 +33,17 @@ public class JwtTokenProvider {
     }
     
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(jwtSecret)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        
-        return claims.getSubject();
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(jwtSecret)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            
+            return claims.getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
     }
     
     public boolean validateToken(String token) {
