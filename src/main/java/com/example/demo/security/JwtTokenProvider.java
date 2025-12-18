@@ -37,7 +37,16 @@ public class JwtTokenProvider {
                 .compact();
     }
     
-    public String getUsernameFromToken(String token) {
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(jwtSecret).build().parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public String getEmailFromToken(String token) {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(jwtSecret)
@@ -47,15 +56,6 @@ public class JwtTokenProvider {
             return claims.getSubject();
         } catch (Exception e) {
             return null;
-        }
-    }
-    
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser().verifyWith(jwtSecret).build().parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 }
