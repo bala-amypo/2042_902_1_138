@@ -1,20 +1,43 @@
+package com.example.demo.controller;
+
+import com.example.demo.model.Guest;
+import com.example.demo.service.GuestService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/guests")
+@RequestMapping("/guests")
 public class GuestController {
 
-    private final GuestService service;
+    private final GuestService guestService;
 
-    public GuestController(GuestService service) {
-        this.service = service;
+    public GuestController(GuestService guestService) {
+        this.guestService = guestService;
     }
 
     @PostMapping
-    public Guest create(@RequestBody Guest guest) {
-        return service.createGuest(guest);
+    public Guest createGuest(@RequestBody Guest guest) {
+        return guestService.createGuest(guest);
+    }
+
+    @GetMapping
+    public List<Guest> getAllGuests() {
+        return guestService.getAllGuests();
     }
 
     @GetMapping("/{id}")
-    public Guest get(@PathVariable Long id) {
-        return service.getGuestById(id);
+    public Guest getGuestById(@PathVariable Long id) {
+        return guestService.getGuestById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Guest updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
+        return guestService.updateGuest(id, guest);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteGuest(@PathVariable Long id) {
+        guestService.deleteGuest(id);
     }
 }
