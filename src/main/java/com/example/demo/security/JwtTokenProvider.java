@@ -2,21 +2,26 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
     
     private final SecretKey jwtSecret;
-    private final long jwtExpirationMs = 86400000; // 24 hours
     
-    public JwtTokenProvider() {
-        this.jwtSecret = Keys.secretKeyFor(Jwts.SIG.HS256);
+    @Value("${jwt.expiration}")
+    private long jwtExpirationMs;
+    
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        this.jwtSecret = Keys.hmacShaKeyFor(keyBytes);
     }
     
     public String generateToken(Authentication authentication) {
@@ -28,7 +33,7 @@ public class JwtTokenProvider {
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(jwtSecret, Jwts.SIG.HS256)
+                .signWith(jwtSecret)
                 .compact();
     }
     
@@ -39,21 +44,17 @@ public class JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            
             return claims.getSubject();
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
             return null;
         }
     }
     
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(jwtSecret)
-                    .build()
-                    .parseSignedClaims(token);
+            Jwts.parser().verifyWith(jwtSecret).build().parseSignedClaims(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
             return false;
         }
     }
