@@ -1,13 +1,22 @@
-package com.example.demo.repository;
+package com.example.demo.service.impl;
 
-import com.example.demo.model.AccessLog;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.example.demo.repository.AccessLogRepository;
+import com.example.demo.repository.DigitalKeyRepository;
+import com.example.demo.repository.KeyShareRequestRepository;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-@Repository
-public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
-    List<AccessLog> findByGuestId(Long guestId);
-    List<AccessLog> findByDigitalKeyId(Long keyId);
+@Service
+public class AccessLogServiceImpl {
+    
+    private final AccessLogRepository accessLogRepo;
+    private final DigitalKeyRepository digitalKeyRepo;
+    private final KeyShareRequestRepository keyShareRequestRepo;
+    
+    public AccessLogServiceImpl(AccessLogRepository accessLogRepo,
+                               DigitalKeyRepository digitalKeyRepo,
+                               KeyShareRequestRepository keyShareRequestRepo) {
+        this.accessLogRepo = accessLogRepo;
+        this.digitalKeyRepo = digitalKeyRepo;
+        this.keyShareRequestRepo = keyShareRequestRepo;
+    }
 }

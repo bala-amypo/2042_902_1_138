@@ -1,6 +1,9 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.repository.*;
+import com.example.demo.repository.AccessLogRepository;
+import com.example.demo.repository.DigitalKeyRepository;
+import com.example.demo.repository.GuestRepository;
+import com.example.demo.repository.KeyShareRequestRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,15 +12,15 @@ public class AccessLogServiceImpl {
     private final AccessLogRepository accessLogRepo;
     private final DigitalKeyRepository digitalKeyRepo;
     private final GuestRepository guestRepo;
-    private final KeyShareRepository keyShareRepo;
+    private final KeyShareRequestRepository keyShareRequestRepo;
     
     public AccessLogServiceImpl(AccessLogRepository accessLogRepo,
                                DigitalKeyRepository digitalKeyRepo,
                                GuestRepository guestRepo,
-                               KeyShareRepository keyShareRepo) {
+                               KeyShareRequestRepository keyShareRequestRepo) {
         this.accessLogRepo = accessLogRepo;
         this.digitalKeyRepo = digitalKeyRepo;
         this.guestRepo = guestRepo;
-        this.keyShareRepo = keyShareRepo;
+        this.keyShareRequestRepo = keyShareRequestRepo;
     }
 }
