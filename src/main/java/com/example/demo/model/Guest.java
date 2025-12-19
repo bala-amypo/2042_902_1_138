@@ -77,7 +77,7 @@ public class Guest {
         this(fullName, email, phoneNumber, password, verified, active, role, null);
     }
     
-    //  Keep old constructor for backward compatibility
+    // Keep old constructor for backward compatibility
     public Guest(String fullName, String email, String phoneNumber, String password, 
                  Boolean verified, Boolean active, String role, Timestamp createdAt) {
         this.fullName = fullName;
