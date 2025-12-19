@@ -1,9 +1,8 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "room_bookings")
@@ -13,60 +12,41 @@ public class RoomBooking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "guest_id", nullable = false)
-    private Guest guest;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Timestamp createdAt;
     
-    @Column(name = "room_number", nullable = false)
-    private String roomNumber;
+    @Column(name = "check_in_time")
+    private Timestamp checkInTime;
     
-    @Column(name = "check_in_date", nullable = false)
-    private LocalDate checkInDate;
+    @Column(name = "check_out_time")
+    private Timestamp checkOutTime;
     
-    @Column(name = "check_out_date", nullable = false)
-    private LocalDate checkOutDate;
-    
-    @Column(nullable = false)
-    private Boolean active = true;
-    
-    @ManyToMany
-    @JoinTable(
-        name = "booking_roommates",
-        joinColumns = @JoinColumn(name = "booking_id"),
-        inverseJoinColumns = @JoinColumn(name = "guest_id")
-    )
-    private Set<Guest> roommates = new HashSet<>();
-    
-    public RoomBooking() {}
-    
-    public RoomBooking(Guest guest, String roomNumber, LocalDate checkInDate, 
-                      LocalDate checkOutDate, Boolean active) {
-        this.guest = guest;
-        this.roomNumber = roomNumber;
-        this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
-        this.active = active != null ? active : true;
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = Timestamp.valueOf(LocalDateTime.now());
+        }
     }
     
-    // Getters and Setters
+    public Timestamp timestamp() {
+        return this.checkInTime != null ? this.checkInTime : this.createdAt;
+    }
+    
+    public boolean isAfter(Timestamp other) {
+        Timestamp compareTime = this.checkInTime != null ? this.checkInTime : this.createdAt;
+        if (compareTime == null || other == null) return false;
+        return compareTime.after(other);
+    }
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
-    public Guest getGuest() { return guest; }
-    public void setGuest(Guest guest) { this.guest = guest; }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     
-    public String getRoomNumber() { return roomNumber; }
-    public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
+    public Timestamp getCheckInTime() { return checkInTime; }
+    public void setCheckInTime(Timestamp checkInTime) { this.checkInTime = checkInTime; }
     
-    public LocalDate getCheckInDate() { return checkInDate; }
-    public void setCheckInDate(LocalDate checkInDate) { this.checkInDate = checkInDate; }
-    
-    public LocalDate getCheckOutDate() { return checkOutDate; }
-    public void setCheckOutDate(LocalDate checkOutDate) { this.checkOutDate = checkOutDate; }
-    
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
-    
-    public Set<Guest> getRoommates() { return roommates; }
-    public void setRoommates(Set<Guest> roommates) { this.roommates = roommates; }
+    public Timestamp getCheckOutTime() { return checkOutTime; }
+    public void setCheckOutTime(Timestamp checkOutTime) { this.checkOutTime = checkOutTime; }
 }
