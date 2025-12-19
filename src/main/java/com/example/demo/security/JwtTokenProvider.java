@@ -1,14 +1,64 @@
-public String generateToken(Authentication authentication) {
-    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+package com.example.demo.security;
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+
+@Component
+public class JwtTokenProvider {
     
-    // ✅ Convert Instant to Date for JWT library
-    Instant now = Instant.now();
-    Instant expiryInstant = now.plusMillis(jwtExpirationMs);
+    private final SecretKey jwtSecret;
     
-    return Jwts.builder()
-            .subject(userDetails.getUsername())
-            .issuedAt(Date.from(now))  // ✅ Convert Instant to Date
-            .expiration(Date.from(expiryInstant))  // ✅ Convert Instant to Date
-            .signWith(jwtSecret)
-            .compact();
+    @Value("${jwt.expiration}")
+    private Long jwtExpirationMs;
+    
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        this.jwtSecret = Keys.hmacShaKeyFor(keyBytes);
+    }
+    
+    public String generateToken(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        
+        Instant now = Instant.now();
+        Instant expiryInstant = now.plusMillis(jwtExpirationMs);
+        
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiryInstant))
+                .signWith(jwtSecret)
+                .compact();
+    }
+    
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(jwtSecret).build().parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public String getEmailFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(jwtSecret)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
+// Make sure this is the LAST LINE - there should be NO extra text after this
