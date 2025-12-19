@@ -7,10 +7,19 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "digital_keys")
 public class DigitalKey {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    private String keyValue;
+    private boolean active;
+    
+    @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private RoomBooking booking;
+    
+    @Column(name = "issued_at")
+    private Timestamp issuedAt;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
@@ -20,15 +29,11 @@ public class DigitalKey {
     
     @PrePersist
     protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = Timestamp.valueOf(LocalDateTime.now());
-        }
+        if (createdAt == null) createdAt = Timestamp.valueOf(LocalDateTime.now());
+        if (issuedAt == null) issuedAt = Timestamp.valueOf(LocalDateTime.now());
     }
     
-    public Timestamp timestamp() {
-        return this.createdAt;
-    }
-    
+    public Timestamp timestamp() { return this.createdAt; }
     public boolean isAfter(Timestamp other) {
         if (this.createdAt == null || other == null) return false;
         return this.createdAt.after(other);
@@ -36,6 +41,19 @@ public class DigitalKey {
     
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    
+    public String getKeyValue() { return keyValue; }
+    public void setKeyValue(String keyValue) { this.keyValue = keyValue; }
+    
+    public boolean getActive() { return active; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+    
+    public RoomBooking getBooking() { return booking; }
+    public void setBooking(RoomBooking booking) { this.booking = booking; }
+    
+    public Timestamp getIssuedAt() { return issuedAt; }
+    public void setIssuedAt(Timestamp issuedAt) { this.issuedAt = issuedAt; }
     
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
