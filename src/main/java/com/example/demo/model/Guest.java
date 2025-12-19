@@ -1,8 +1,8 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "guests")
@@ -33,13 +33,15 @@ public class Guest {
     @Column(nullable = false)
     private String role = "ROLE_USER";
     
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private Instant createdAt;  // ✅ Changed from Timestamp to Instant
     
     public Guest() {}
     
+    // Updated constructor
     public Guest(String fullName, String email, String phoneNumber, String password, 
-                 Boolean verified, Boolean active, String role, Timestamp createdAt) {
+                 Boolean verified, Boolean active, String role) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -47,15 +49,10 @@ public class Guest {
         this.verified = verified != null ? verified : false;
         this.active = active != null ? active : true;
         this.role = role != null ? role : "ROLE_USER";
-        this.createdAt = createdAt;
+        // createdAt will be automatically set by @CreationTimestamp
     }
     
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = Timestamp.valueOf(LocalDateTime.now());
-        }
-    }
+    // Removed @PrePersist method since @CreationTimestamp handles it automatically
     
     // Getters and Setters
     public Long getId() { return id; }
@@ -82,6 +79,6 @@ public class Guest {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
     
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public Instant getCreatedAt() { return createdAt; }  // ✅ Updated return type
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }  // ✅ Updated parameter type
 }
