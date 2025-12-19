@@ -1,9 +1,8 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.sql.Timestamp;  // Keep this import
-import java.time.Instant;
-import org.hibernate.annotations.CreationTimestamp;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "guests")
@@ -34,50 +33,11 @@ public class Guest {
     @Column(nullable = false)
     private String role = "ROLE_USER";
     
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;  //  Internal: Use Instant
-    
-    //  Keep Timestamp getter/setter for backward compatibility
-    @Transient  // This field won't be stored in DB
-    public Timestamp getCreatedAtTimestamp() {
-        return Timestamp.from(createdAt);
-    }
-    
-    @Transient
-    public void setCreatedAtTimestamp(Timestamp timestamp) {
-        this.createdAt = timestamp.toInstant();
-    }
-    
-    // Add deprecated getter for Timestamp (for backward compatibility)
-    @Deprecated
-    public Timestamp getCreatedAt() {
-        return Timestamp.from(createdAt);
-    }
-    
-    @Deprecated
-    public void setCreatedAt(Timestamp timestamp) {
-        this.createdAt = timestamp.toInstant();
-    }
-    
-    //  Add getter for Instant
-    public Instant getCreatedAtInstant() {
-        return createdAt;
-    }
-    
-    public void setCreatedAtInstant(Instant instant) {
-        this.createdAt = instant;
-    }
+    private Timestamp createdAt;
     
     public Guest() {}
     
-    //  Keep both constructors
-    public Guest(String fullName, String email, String phoneNumber, String password, 
-                 Boolean verified, Boolean active, String role) {
-        this(fullName, email, phoneNumber, password, verified, active, role, null);
-    }
-    
-    // Keep old constructor for backward compatibility
     public Guest(String fullName, String email, String phoneNumber, String password, 
                  Boolean verified, Boolean active, String role, Timestamp createdAt) {
         this.fullName = fullName;
@@ -87,20 +47,25 @@ public class Guest {
         this.verified = verified != null ? verified : false;
         this.active = active != null ? active : true;
         this.role = role != null ? role : "ROLE_USER";
-        
-        if (createdAt != null) {
-            this.createdAt = createdAt.toInstant();
-        }
+        this.createdAt = createdAt;
     }
     
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
-            createdAt = Instant.now();
+            createdAt = Timestamp.valueOf(LocalDateTime.now());
         }
     }
     
-    // Getters and Setters (standard ones)
+    public Timestamp timestamp() {
+        return this.createdAt;
+    }
+    
+    public boolean isAfter(Timestamp other) {
+        if (this.createdAt == null || other == null) return false;
+        return this.createdAt.after(other);
+    }
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -124,4 +89,7 @@ public class Guest {
     
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+    
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 }
