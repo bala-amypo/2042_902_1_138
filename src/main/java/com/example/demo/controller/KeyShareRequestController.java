@@ -2,41 +2,52 @@ package com.example.demo.controller;
 
 import com.example.demo.model.KeyShareRequest;
 import com.example.demo.service.KeyShareRequestService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/key-share")
+@Tag(name = "Key Sharing")
 public class KeyShareRequestController {
+    
     private final KeyShareRequestService keyShareRequestService;
     
     public KeyShareRequestController(KeyShareRequestService keyShareRequestService) {
         this.keyShareRequestService = keyShareRequestService;
     }
     
-    @PostMapping("/")
+    @PostMapping
+    @Operation(summary = "Create key share request")
     public ResponseEntity<KeyShareRequest> createShareRequest(@RequestBody KeyShareRequest request) {
         return ResponseEntity.ok(keyShareRequestService.createShareRequest(request));
     }
     
-    @PutMapping("/{id}/status")
-    public ResponseEntity<KeyShareRequest> updateStatus(@PathVariable long id, @RequestBody String status) {
-        return ResponseEntity.ok(keyShareRequestService.updateStatus(id, status));
-    }
-    
     @GetMapping("/{id}")
-    public ResponseEntity<KeyShareRequest> getShareRequest(@PathVariable long id) {
+    @Operation(summary = "Get share request by ID")
+    public ResponseEntity<KeyShareRequest> getShareRequest(@Parameter(name = "id", description = "Request ID") @PathVariable Long id) {
         return ResponseEntity.ok(keyShareRequestService.getShareRequestById(id));
     }
     
+    @PutMapping("/{id}/status")
+    @Operation(summary = "Update share request status")
+    public ResponseEntity<KeyShareRequest> updateStatus(@Parameter(name = "id", description = "Request ID") @PathVariable Long id, 
+                                                       @Parameter(name = "status", description = "New status") @RequestParam String status) {
+        return ResponseEntity.ok(keyShareRequestService.updateStatus(id, status));
+    }
+    
     @GetMapping("/shared-by/{guestId}")
-    public ResponseEntity<List<KeyShareRequest>> getRequestsSharedBy(@PathVariable long guestId) {
+    @Operation(summary = "Get requests shared by guest")
+    public ResponseEntity<List<KeyShareRequest>> getRequestsSharedBy(@Parameter(name = "guestId", description = "Guest ID") @PathVariable Long guestId) {
         return ResponseEntity.ok(keyShareRequestService.getRequestsSharedBy(guestId));
     }
     
     @GetMapping("/shared-with/{guestId}")
-    public ResponseEntity<List<KeyShareRequest>> getRequestsSharedWith(@PathVariable long guestId) {
+    @Operation(summary = "Get requests shared with guest")
+    public ResponseEntity<List<KeyShareRequest>> getRequestsSharedWith(@Parameter(name = "guestId", description = "Guest ID") @PathVariable Long guestId) {
         return ResponseEntity.ok(keyShareRequestService.getRequestsSharedWith(guestId));
     }
 }
