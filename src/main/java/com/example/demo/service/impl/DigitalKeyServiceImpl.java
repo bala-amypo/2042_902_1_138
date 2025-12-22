@@ -30,7 +30,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
         RoomBooking booking = roomBookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
-        // Check if booking is active - FIXED LINE
+        // Check if booking is active
         if (!"ACTIVE".equals(booking.getStatus())) {
             throw new RuntimeException("Cannot generate key for inactive booking");
         }
@@ -49,7 +49,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
         digitalKey.setKeyValue(keyValue);
         digitalKey.setBooking(booking);
         digitalKey.setIssueTime(LocalDateTime.now());
-        digitalKey.setExpiryTime(booking.getCheckOutDate()); // Expires at checkout
+        digitalKey.setExpiryTime(booking.getCheckOutDate());
         digitalKey.setStatus("ACTIVE");
 
         // Save and return
@@ -69,7 +69,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
     }
 
     @Override
-    public List<DigitalKey> getKeysByGuestId(Long guestId) {
+    public List<DigitalKey> getKeysForGuest(Long guestId) {  // Changed method name
         return digitalKeyRepository.findByBookingGuestId(guestId);
     }
 
@@ -82,7 +82,6 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
     public DigitalKey updateKey(Long id, DigitalKey keyDetails) {
         DigitalKey key = getKeyById(id);
 
-        // Update fields if provided
         if (keyDetails.getExpiryTime() != null) {
             key.setExpiryTime(keyDetails.getExpiryTime());
         }
@@ -112,23 +111,20 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
         Optional<DigitalKey> key = digitalKeyRepository.findByKeyValue(keyValue);
         
         if (!key.isPresent()) {
-            return false; // Key doesn't exist
+            return false;
         }
 
         DigitalKey digitalKey = key.get();
         
-        // Check if key is active
         if (!"ACTIVE".equals(digitalKey.getStatus())) {
             return false;
         }
 
-        // Check if key is expired
         LocalDateTime now = LocalDateTime.now();
         if (now.isAfter(digitalKey.getExpiryTime())) {
             return false;
         }
 
-        // Check if key is issued in the future (shouldn't happen, but just in case)
         if (now.isBefore(digitalKey.getIssueTime())) {
             return false;
         }
@@ -146,24 +142,17 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
 
         DigitalKey digitalKey = key.get();
         
-        // Check basic key validity
         if (!isValidKey(keyValue)) {
             return false;
         }
 
-        // Check if key belongs to the specified room
         if (!digitalKey.getBooking().getRoomNumber().equals(roomNumber)) {
             return false;
         }
 
-        // Check if guest has access to this key
-        // Primary guest always has access
         if (digitalKey.getBooking().getGuest().getId().equals(guestId)) {
             return true;
         }
-
-        // TODO: Add sharing logic here if you have key sharing feature
-        // For now, only primary guest has access
         
         return false;
     }
@@ -172,7 +161,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
     public void revokeKey(Long id) {
         DigitalKey key = getKeyById(id);
         key.setStatus("REVOKED");
-        key.setExpiryTime(LocalDateTime.now()); // Expire immediately
+        key.setExpiryTime(LocalDateTime.now());
         digitalKeyRepository.save(key);
     }
 

@@ -38,7 +38,7 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
         DigitalKey key = keyRepository.findById(request.getDigitalKey().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Key not found"));
         
-        if (!key.getActive()) {
+        if (!"ACTIVE".equals(key.getStatus())) {
             throw new IllegalStateException("Key is not active");
         }
         
