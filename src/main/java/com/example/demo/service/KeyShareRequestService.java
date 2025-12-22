@@ -5,8 +5,8 @@ import java.util.List;
 
 public interface KeyShareRequestService {
     KeyShareRequest createShareRequest(KeyShareRequest request);
-    KeyShareRequest updateStatus(long requestId, String status);
-    KeyShareRequest getShareRequestById(long id);
-    List<KeyShareRequest> getRequestsSharedBy(long guestId);
-    List<KeyShareRequest> getRequestsSharedWith(long guestId);
+    KeyShareRequest updateStatus(Long requestId, String status);
+    KeyShareRequest getShareRequestById(Long id);
+    List<KeyShareRequest> getRequestsSharedBy(Long guestId);
+    List<KeyShareRequest> getRequestsSharedWith(Long guestId);
 }
