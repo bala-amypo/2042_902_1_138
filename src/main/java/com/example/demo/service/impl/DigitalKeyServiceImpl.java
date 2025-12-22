@@ -1,178 +1,58 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.DigitalKey;
 import com.example.demo.model.RoomBooking;
 import com.example.demo.repository.DigitalKeyRepository;
 import com.example.demo.repository.RoomBookingRepository;
 import com.example.demo.service.DigitalKeyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Transactional
 public class DigitalKeyServiceImpl implements DigitalKeyService {
-
-    @Autowired
-    private DigitalKeyRepository digitalKeyRepository;
-
-    @Autowired
-    private RoomBookingRepository roomBookingRepository;
-
+    
+    private final DigitalKeyRepository digitalKeyRepository;
+    private final RoomBookingRepository roomBookingRepository;
+    
+    public DigitalKeyServiceImpl(DigitalKeyRepository digitalKeyRepository, RoomBookingRepository roomBookingRepository) {
+        this.digitalKeyRepository = digitalKeyRepository;
+        this.roomBookingRepository = roomBookingRepository;
+    }
+    
     @Override
-    public DigitalKey generateKeyForBooking(Long bookingId) {
-        // Find the booking
+    public DigitalKey generateKey(Long bookingId) {
         RoomBooking booking = roomBookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
-
-        // Check if booking is active
-        if (!"ACTIVE".equals(booking.getStatus())) {
-            throw new RuntimeException("Cannot generate key for inactive booking");
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        
+        if (!booking.getActive()) {
+            throw new IllegalStateException("Cannot generate key for inactive booking");
         }
-
-        // Check if booking already has an active key
-        Optional<DigitalKey> existingKey = digitalKeyRepository.findByBookingIdAndStatus(bookingId, "ACTIVE");
-        if (existingKey.isPresent()) {
-            throw new RuntimeException("Active key already exists for this booking");
-        }
-
-        // Generate unique key value
+        
         String keyValue = UUID.randomUUID().toString();
-
-        // Create digital key
-        DigitalKey digitalKey = new DigitalKey();
-        digitalKey.setKeyValue(keyValue);
-        digitalKey.setBooking(booking);
-        digitalKey.setIssueTime(LocalDateTime.now());
-        digitalKey.setExpiryTime(booking.getCheckOutDate());
-        digitalKey.setStatus("ACTIVE");
-
-        // Save and return
+        Timestamp issuedAt = new Timestamp(System.currentTimeMillis());
+        Timestamp expiresAt = new Timestamp(issuedAt.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+        
+        DigitalKey digitalKey = new DigitalKey(booking, keyValue, issuedAt, expiresAt, true);
         return digitalKeyRepository.save(digitalKey);
     }
-
+    
     @Override
     public DigitalKey getKeyById(Long id) {
         return digitalKeyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Digital key not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Key not found"));
     }
-
+    
     @Override
-    public DigitalKey getActiveKeyByBookingId(Long bookingId) {
-        return digitalKeyRepository.findByBookingIdAndStatus(bookingId, "ACTIVE")
-                .orElseThrow(() -> new RuntimeException("No active key found for booking id: " + bookingId));
+    public DigitalKey getActiveKeyForBooking(Long bookingId) {
+        return digitalKeyRepository.findByBookingIdAndActiveTrue(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Active key not found for booking"));
     }
-
+    
     @Override
-    public List<DigitalKey> getKeysForGuest(Long guestId) {  // Changed method name
+    public List<DigitalKey> getKeysForGuest(Long guestId) {
         return digitalKeyRepository.findByBookingGuestId(guestId);
-    }
-
-    @Override
-    public List<DigitalKey> getAllKeys() {
-        return digitalKeyRepository.findAll();
-    }
-
-    @Override
-    public DigitalKey updateKey(Long id, DigitalKey keyDetails) {
-        DigitalKey key = getKeyById(id);
-
-        if (keyDetails.getExpiryTime() != null) {
-            key.setExpiryTime(keyDetails.getExpiryTime());
-        }
-
-        if (keyDetails.getStatus() != null) {
-            key.setStatus(keyDetails.getStatus());
-        }
-
-        return digitalKeyRepository.save(key);
-    }
-
-    @Override
-    public void deactivateKey(Long id) {
-        DigitalKey key = getKeyById(id);
-        key.setStatus("INACTIVE");
-        digitalKeyRepository.save(key);
-    }
-
-    @Override
-    public void deleteKey(Long id) {
-        DigitalKey key = getKeyById(id);
-        digitalKeyRepository.delete(key);
-    }
-
-    @Override
-    public boolean isValidKey(String keyValue) {
-        Optional<DigitalKey> key = digitalKeyRepository.findByKeyValue(keyValue);
-        
-        if (!key.isPresent()) {
-            return false;
-        }
-
-        DigitalKey digitalKey = key.get();
-        
-        if (!"ACTIVE".equals(digitalKey.getStatus())) {
-            return false;
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(digitalKey.getExpiryTime())) {
-            return false;
-        }
-
-        if (now.isBefore(digitalKey.getIssueTime())) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean validateKeyAccess(String keyValue, Long guestId, String roomNumber) {
-        Optional<DigitalKey> key = digitalKeyRepository.findByKeyValue(keyValue);
-        
-        if (!key.isPresent()) {
-            return false;
-        }
-
-        DigitalKey digitalKey = key.get();
-        
-        if (!isValidKey(keyValue)) {
-            return false;
-        }
-
-        if (!digitalKey.getBooking().getRoomNumber().equals(roomNumber)) {
-            return false;
-        }
-
-        if (digitalKey.getBooking().getGuest().getId().equals(guestId)) {
-            return true;
-        }
-        
-        return false;
-    }
-
-    @Override
-    public void revokeKey(Long id) {
-        DigitalKey key = getKeyById(id);
-        key.setStatus("REVOKED");
-        key.setExpiryTime(LocalDateTime.now());
-        digitalKeyRepository.save(key);
-    }
-
-    @Override
-    public List<DigitalKey> getExpiredKeys() {
-        LocalDateTime now = LocalDateTime.now();
-        return digitalKeyRepository.findByExpiryTimeBeforeAndStatus(now, "ACTIVE");
-    }
-
-    @Override
-    public List<DigitalKey> getKeysByStatus(String status) {
-        return digitalKeyRepository.findByStatus(status);
     }
 }

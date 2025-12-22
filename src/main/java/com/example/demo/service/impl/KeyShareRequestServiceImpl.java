@@ -1,79 +1,74 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.KeyShareRequest;
-import com.example.demo.model.DigitalKey;
-import com.example.demo.model.Guest;
-import com.example.demo.repository.KeyShareRequestRepository;
 import com.example.demo.repository.DigitalKeyRepository;
 import com.example.demo.repository.GuestRepository;
+import com.example.demo.repository.KeyShareRequestRepository;
 import com.example.demo.service.KeyShareRequestService;
 import org.springframework.stereotype.Service;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Service
 public class KeyShareRequestServiceImpl implements KeyShareRequestService {
-    private final KeyShareRequestRepository requestRepository;
-    private final DigitalKeyRepository keyRepository;
+    
+    private final KeyShareRequestRepository keyShareRequestRepository;
+    private final DigitalKeyRepository digitalKeyRepository;
     private final GuestRepository guestRepository;
     
-    public KeyShareRequestServiceImpl(KeyShareRequestRepository requestRepository,
-                                     DigitalKeyRepository keyRepository,
-                                     GuestRepository guestRepository) {
-        this.requestRepository = requestRepository;
-        this.keyRepository = keyRepository;
+    public KeyShareRequestServiceImpl(KeyShareRequestRepository keyShareRequestRepository, 
+                                    DigitalKeyRepository digitalKeyRepository, 
+                                    GuestRepository guestRepository) {
+        this.keyShareRequestRepository = keyShareRequestRepository;
+        this.digitalKeyRepository = digitalKeyRepository;
         this.guestRepository = guestRepository;
     }
     
     @Override
     public KeyShareRequest createShareRequest(KeyShareRequest request) {
-        if (request.getShareEnd().before(request.getShareStart())) {
-            throw new IllegalArgumentException("Share end must be after start");
+        if (request.getShareEnd() != null && request.getShareStart() != null && 
+            !request.getShareEnd().after(request.getShareStart())) {
+            throw new IllegalArgumentException("Share end time must be after share start time");
         }
         
-        if (request.getSharedBy().getId().equals(request.getSharedWith().getId())) {
-            throw new IllegalArgumentException("sharedBy and sharedWith cannot be same");
+        if (request.getSharedBy() != null && request.getSharedWith() != null && 
+            request.getSharedBy().getId().equals(request.getSharedWith().getId())) {
+            throw new IllegalArgumentException("sharedBy and sharedWith cannot be the same guest");
         }
         
-        DigitalKey key = keyRepository.findById(request.getDigitalKey().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Key not found"));
+        // Verify entities exist
+        digitalKeyRepository.findById(request.getDigitalKey().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Digital key not found"));
+        guestRepository.findById(request.getSharedBy().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("SharedBy guest not found"));
+        guestRepository.findById(request.getSharedWith().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("SharedWith guest not found"));
         
-        if (!"ACTIVE".equals(key.getStatus())) {
-            throw new IllegalStateException("Key is not active");
-        }
-        
-        request.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         request.setStatus("PENDING");
-        
-        return requestRepository.save(request);
+        return keyShareRequestRepository.save(request);
     }
     
     @Override
-    public KeyShareRequest updateStatus(long requestId, String status) {
-        KeyShareRequest request = requestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("Request not found"));
-        
-        if (!List.of("PENDING", "APPROVED", "REJECTED").contains(status)) {
-            throw new IllegalArgumentException("Invalid status");
-        }
-        
+    public KeyShareRequest updateStatus(Long requestId, String status) {
+        KeyShareRequest request = keyShareRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Share request not found"));
         request.setStatus(status);
-        return requestRepository.save(request);
+        return keyShareRequestRepository.save(request);
     }
     
     @Override
-    public KeyShareRequest getShareRequestById(long id) {
-        return requestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Request not found"));
+    public KeyShareRequest getShareRequestById(Long id) {
+        return keyShareRequestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Share request not found"));
     }
     
     @Override
-    public List<KeyShareRequest> getRequestsSharedBy(long guestId) {
-        return requestRepository.findBySharedById(guestId);
+    public List<KeyShareRequest> getRequestsSharedBy(Long guestId) {
+        return keyShareRequestRepository.findBySharedById(guestId);
     }
     
     @Override
-    public List<KeyShareRequest> getRequestsSharedWith(long guestId) {
-        return requestRepository.findBySharedWithId(guestId);
+    public List<KeyShareRequest> getRequestsSharedWith(Long guestId) {
+        return keyShareRequestRepository.findBySharedWithId(guestId);
     }
 }
