@@ -39,7 +39,7 @@ public class RoomBookingController {
     // Get bookings by guest ID - FIXED METHOD NAME
     @GetMapping("/guest/{guestId}")
     public ResponseEntity<List<RoomBooking>> getBookingsByGuestId(@PathVariable Long guestId) {
-        List<RoomBooking> bookings = bookingService.getBookingsByGuestId(guestId);  // Fixed method name
+        List<RoomBooking> bookings = bookingService.getBookingsByGuestId(guestId);
         return ResponseEntity.ok(bookings);
     }
 
@@ -67,7 +67,7 @@ public class RoomBookingController {
     // Deactivate booking - FIXED METHOD NAME
     @PutMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateBooking(@PathVariable Long id) {
-        bookingService.deactivateBooking(id);  // Fixed method name
+        bookingService.deactivateBooking(id);
         return ResponseEntity.ok().build();
     }
 
@@ -77,8 +77,10 @@ public class RoomBookingController {
             @RequestParam String roomNumber,
             @RequestParam String checkIn,
             @RequestParam String checkOut) {
-        // Parse dates and check availability
-        // Implementation depends on your date format
-        return ResponseEntity.ok(true);
+        // This is a simplified version - you'll need to parse dates
+        boolean isAvailable = bookingService.isRoomAvailable(roomNumber, 
+            java.time.LocalDateTime.parse(checkIn), 
+            java.time.LocalDateTime.parse(checkOut));
+        return ResponseEntity.ok(isAvailable);
     }
 }

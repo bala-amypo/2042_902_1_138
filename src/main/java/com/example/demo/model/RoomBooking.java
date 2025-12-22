@@ -28,7 +28,7 @@ public class RoomBooking {
     private LocalDateTime bookingDate = LocalDateTime.now();
 
     @Column(name = "status", nullable = false)
-    private String status = "ACTIVE";  // Changed from getActive()
+    private String status = "ACTIVE";
 
     // Constructors
     public RoomBooking() {}
