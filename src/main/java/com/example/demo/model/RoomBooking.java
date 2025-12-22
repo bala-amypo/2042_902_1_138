@@ -1,120 +1,100 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
-import java.sql.Timestamp;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "room_bookings")
 public class RoomBooking {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(name = "room_number")
+
+    @ManyToOne
+    @JoinColumn(name = "guest_id", nullable = false)
+    private Guest guest;
+
+    @Column(name = "room_number", nullable = false)
     private String roomNumber;
-    
-    @Column(name = "active")
-    private boolean active;
-    
-    @Column(name = "check_in_date")
-    private Timestamp checkInDate;
-    
-    @Column(name = "check_out_date")
-    private Timestamp checkOutDate;
-    
-    @Column(name = "check_in_time")
-    private Timestamp checkInTime;
-    
-    @Column(name = "check_out_time")
-    private Timestamp checkOutTime;
-    
-    @Column(name = "created_at")
-    private Timestamp createdAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = Timestamp.valueOf(LocalDateTime.now());
-        }
+
+    @Column(name = "check_in_date", nullable = false)
+    private LocalDateTime checkInDate;
+
+    @Column(name = "check_out_date", nullable = false)
+    private LocalDateTime checkOutDate;
+
+    @Column(name = "booking_date", nullable = false)
+    private LocalDateTime bookingDate;
+
+    @Column(name = "status", nullable = false)
+    private String status = "CONFIRMED";
+
+    // Constructors
+    public RoomBooking() {}
+
+    public RoomBooking(Guest guest, String roomNumber, LocalDateTime checkInDate, LocalDateTime checkOutDate) {
+        this.guest = guest;
+        this.roomNumber = roomNumber;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+        this.bookingDate = LocalDateTime.now();
     }
-    
-    public Timestamp timestamp() {
-        return this.checkInTime != null ? this.checkInTime : this.createdAt;
-    }
-    
-    public boolean isAfter(Timestamp other) {
-        Timestamp compareTime = this.checkInTime != null ? this.checkInTime : this.createdAt;
-        if (compareTime == null || other == null) return false;
-        return compareTime.after(other);
-    }
-    
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
-    
+
     public void setId(Long id) {
         this.id = id;
     }
-    
+
+    public Guest getGuest() {
+        return guest;
+    }
+
+    public void setGuest(Guest guest) {
+        this.guest = guest;
+    }
+
     public String getRoomNumber() {
         return roomNumber;
     }
-    
+
     public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
     }
-    
-    public boolean getActive() {
-        return active;
-    }
-    
-    public boolean isActive() {
-        return active;
-    }
-    
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-    
-    public Timestamp getCheckInDate() {
+
+    public LocalDateTime getCheckInDate() {
         return checkInDate;
     }
-    
-    public void setCheckInDate(Timestamp checkInDate) {
+
+    public void setCheckInDate(LocalDateTime checkInDate) {
         this.checkInDate = checkInDate;
     }
-    
-    public Timestamp getCheckOutDate() {
+
+    public LocalDateTime getCheckOutDate() {
         return checkOutDate;
     }
-    
-    public void setCheckOutDate(Timestamp checkOutDate) {
+
+    public void setCheckOutDate(LocalDateTime checkOutDate) {
         this.checkOutDate = checkOutDate;
     }
-    
-    public Timestamp getCheckInTime() {
-        return checkInTime;
+
+    public LocalDateTime getBookingDate() {
+        return bookingDate;
     }
-    
-    public void setCheckInTime(Timestamp checkInTime) {
-        this.checkInTime = checkInTime;
+
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
     }
-    
-    public Timestamp getCheckOutTime() {
-        return checkOutTime;
+
+    public String getStatus() {
+        return status;
     }
-    
-    public void setCheckOutTime(Timestamp checkOutTime) {
-        this.checkOutTime = checkOutTime;
-    }
-    
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
