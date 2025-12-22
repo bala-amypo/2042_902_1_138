@@ -42,6 +42,9 @@ public class RoomBookingServiceImpl implements RoomBookingService {
         // Set booking timestamp
         booking.setBookingDate(LocalDateTime.now());
         
+        // Set default status
+        booking.setStatus("ACTIVE");
+        
         // Save booking
         return roomBookingRepository.save(booking);
     }
@@ -105,6 +108,13 @@ public class RoomBookingServiceImpl implements RoomBookingService {
     }
 
     @Override
+    public void deactivateBooking(Long id) {
+        RoomBooking booking = getBookingById(id);
+        booking.setStatus("INACTIVE");
+        roomBookingRepository.save(booking);
+    }
+
+    @Override
     public boolean isRoomAvailable(String roomNumber, LocalDateTime checkIn, LocalDateTime checkOut) {
         // Validate dates
         if (checkIn.isAfter(checkOut)) {
@@ -112,10 +122,14 @@ public class RoomBookingServiceImpl implements RoomBookingService {
         }
         
         // Check for overlapping bookings
-        List<RoomBooking> existingBookings = roomBookingRepository
-            .findByRoomNumberAndStatusNot(roomNumber, "CANCELLED");
+        List<RoomBooking> existingBookings = roomBookingRepository.findByRoomNumber(roomNumber);
         
         for (RoomBooking booking : existingBookings) {
+            // Skip cancelled/inactive bookings
+            if ("CANCELLED".equals(booking.getStatus()) || "INACTIVE".equals(booking.getStatus())) {
+                continue;
+            }
+            
             // Check if the requested dates overlap with existing booking
             boolean checkInDuringBooking = 
                 !checkIn.isBefore(booking.getCheckInDate()) && 
