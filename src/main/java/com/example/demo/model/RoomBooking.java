@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,10 +25,10 @@ public class RoomBooking {
     private LocalDateTime checkOutDate;
 
     @Column(name = "booking_date", nullable = false)
-    private LocalDateTime bookingDate;
+    private LocalDateTime bookingDate = LocalDateTime.now();
 
     @Column(name = "status", nullable = false)
-    private String status = "CONFIRMED";
+    private String status = "ACTIVE";  // Changed from getActive()
 
     // Constructors
     public RoomBooking() {}
@@ -38,7 +38,6 @@ public class RoomBooking {
         this.roomNumber = roomNumber;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
-        this.bookingDate = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -96,5 +95,10 @@ public class RoomBooking {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // Helper method to check if booking is active
+    public boolean isActive() {
+        return "ACTIVE".equals(this.status);
     }
 }
