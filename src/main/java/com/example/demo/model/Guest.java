@@ -2,70 +2,45 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "guests")
 public class Guest {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "full_name", nullable = false)
     private String fullName;
     
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
     
-    @Column(name = "phone_number")
     private String phoneNumber;
-    
-    @Column(nullable = false)
     private String password;
-    
-    @Column(nullable = false)
     private Boolean verified = false;
-    
-    @Column(nullable = false)
     private Boolean active = true;
-    
-    @Column(nullable = false)
     private String role = "ROLE_USER";
-    
-    @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
     
     public Guest() {}
     
-    public Guest(String fullName, String email, String phoneNumber, String password, 
-                 Boolean verified, Boolean active, String role, Timestamp createdAt) {
+    public Guest(String fullName, String email, String phoneNumber, String password, Boolean verified, Boolean active, String role, Timestamp createdAt) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
-        this.verified = verified != null ? verified : false;
-        this.active = active != null ? active : true;
-        this.role = role != null ? role : "ROLE_USER";
+        this.verified = verified;
+        this.active = active;
+        this.role = role;
         this.createdAt = createdAt;
     }
     
     @PrePersist
     protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = Timestamp.valueOf(LocalDateTime.now());
-        }
+        createdAt = new Timestamp(System.currentTimeMillis());
     }
     
-    public Timestamp timestamp() {
-        return this.createdAt;
-    }
-    
-    public boolean isAfter(Timestamp other) {
-        if (this.createdAt == null || other == null) return false;
-        return this.createdAt.after(other);
-    }
-    
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
