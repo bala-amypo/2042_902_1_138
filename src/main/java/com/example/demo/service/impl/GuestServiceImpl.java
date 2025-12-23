@@ -1,60 +1,65 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.model.Guest;
-import com.example.demo.repository.GuestRepository;
 import com.example.demo.service.GuestService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class GuestServiceImpl implements GuestService {
 
-    private final GuestRepository guestRepository;
-
-    public GuestServiceImpl(GuestRepository guestRepository) {
-        this.guestRepository = guestRepository;
-    }
+    private final List<Guest> guests = new ArrayList<>();
+    private Long idCounter = 1L;
 
     @Override
     public Guest createGuest(Guest guest) {
-        return guestRepository.save(guest);
+        guest.setId(idCounter++);
+        guests.add(guest);
+        return guest;
     }
 
     @Override
     public Guest getGuestByEmail(String email) {
-        return guestRepository.findByEmail(email).orElse(null);
+        return guests.stream()
+                .filter(g -> g.getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public Guest getGuestById(Long id) {
-        return guestRepository.findById(id).orElse(null);
+        return guests.stream()
+                .filter(g -> g.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public List<Guest> getAllGuests() {
-        return guestRepository.findAll();
+        return guests;
     }
 
     @Override
     public Guest updateGuest(Long id, Guest guest) {
-        Optional<Guest> existing = guestRepository.findById(id);
-        if (existing.isPresent()) {
-            Guest g = existing.get();
-            g.setFullName(guest.getFullName());
-            g.setPhoneNumber(guest.getPhoneNumber());
-            g.setActive(guest.isActive());
-            return guestRepository.save(g);
+        Guest existing = getGuestById(id);
+        if (existing != null) {
+            existing.setFullName(guest.getFullName());
+            existing.setEmail(guest.getEmail());
+            existing.setPhoneNumber(guest.getPhoneNumber());
+            existing.setRole(guest.getRole());
+            existing.setVerified(guest.isVerified());
+            existing.setActive(guest.isActive());
         }
-        return null;
+        return existing;
     }
 
     @Override
     public void deactivateGuest(Long id) {
-        guestRepository.findById(id).ifPresent(g -> {
-            g.setActive(false);
-            guestRepository.save(g);
-        });
+        Guest guest = getGuestById(id);
+        if (guest != null) {
+            guest.setActive(false);
+        }
     }
 }
