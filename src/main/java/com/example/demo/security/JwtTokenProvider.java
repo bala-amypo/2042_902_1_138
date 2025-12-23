@@ -58,5 +58,8 @@ public class JwtTokenProvider {
         } catch (UnsupportedJwtException ex) {
             System.out.println("Unsupported JWT token");
         } catch (IllegalArgumentException ex) {
-            System.out.println("JWT claims");
+            System.out.println("JWT claims string is empty.");
+        }
+        return false;
+    }
 }
