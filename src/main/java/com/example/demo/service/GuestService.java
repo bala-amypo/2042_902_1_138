@@ -6,13 +6,15 @@ import java.util.List;
 
 public interface GuestService {
 
-    // AuthController
     Guest createGuest(Guest guest);
-    Guest getGuestByEmail(String email);
 
-    // GuestController
     Guest getGuestById(Long id);
+
     List<Guest> getAllGuests();
+
     Guest updateGuest(Long id, Guest guest);
-    void deactivateGuest(Long id);
+
+    boolean deactivateGuest(Long id);
+
+    Guest getGuestByEmail(String email); // needed for login
 }
