@@ -1,72 +1,49 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.Guest;
 import com.example.demo.service.GuestService;
-import com.example.demo.security.JwtTokenProvider;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/guest")
-@Tag(name = "Guest Management")
+@RequestMapping("/guests")
 public class GuestController {
 
     private final GuestService guestService;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public GuestController(GuestService guestService,
-                           JwtTokenProvider jwtTokenProvider) {
+    public GuestController(GuestService guestService) {
         this.guestService = guestService;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get guest by ID")
-    public ResponseEntity<ApiResponse> getGuestById(@PathVariable Long id) {
+    public ResponseEntity<Guest> getGuestById(@PathVariable Long id) {
         Guest guest = guestService.getGuestById(id);
         if (guest == null) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Guest not found"));
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new ApiResponse(true, "Guest fetched", guest));
+        return ResponseEntity.ok(guest);
     }
 
     @GetMapping
-    @Operation(summary = "Get all guests")
-    public ResponseEntity<ApiResponse> getAllGuests() {
+    public ResponseEntity<List<Guest>> getAllGuests() {
         List<Guest> guests = guestService.getAllGuests();
-        return ResponseEntity.ok(new ApiResponse(true, "All guests fetched", guests));
+        return ResponseEntity.ok(guests);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update guest by ID")
-    public ResponseEntity<ApiResponse> updateGuest(@PathVariable Long id,
-                                                   @RequestBody Guest updatedGuest) {
-        Guest guest = guestService.updateGuest(id, updatedGuest);
-        if (guest == null) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Guest not found"));
+    public ResponseEntity<Guest> updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
+        Guest updated = guestService.updateGuest(id, guest);
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(new ApiResponse(true, "Guest updated", guest));
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deactivate guest by ID")
-    public ResponseEntity<ApiResponse> deactivateGuest(@PathVariable Long id) {
-        boolean deactivated = guestService.deactivateGuest(id);
-        if (!deactivated) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Guest not found or already deactivated"));
-        }
-        return ResponseEntity.ok(new ApiResponse(true, "Guest deactivated"));
-    }
-
-    @PostMapping
-    @Operation(summary = "Create new guest")
-    public ResponseEntity<ApiResponse> createGuest(@RequestBody Guest guest) {
-        Guest created = guestService.createGuest(guest);
-        return ResponseEntity.ok(new ApiResponse(true, "Guest created", created));
+    public ResponseEntity<Void> deactivateGuest(@PathVariable Long id) {
+        guestService.deactivateGuest(id);
+        return ResponseEntity.noContent().build();
     }
 }
