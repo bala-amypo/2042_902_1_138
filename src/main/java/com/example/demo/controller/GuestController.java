@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/guests")
+@RequestMapping("/guest")
 public class GuestController {
 
     private final GuestService guestService;
@@ -19,31 +19,22 @@ public class GuestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Guest> getGuestById(@PathVariable Long id) {
-        Guest guest = guestService.getGuestById(id);
-        if (guest == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(guest);
+        return ResponseEntity.ok(guestService.getGuestById(id));
     }
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<List<Guest>> getAllGuests() {
-        List<Guest> guests = guestService.getAllGuests();
-        return ResponseEntity.ok(guests);
+        return ResponseEntity.ok(guestService.getAllGuests());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Guest> updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
-        Guest updated = guestService.updateGuest(id, guest);
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(guestService.updateGuest(id, guest));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateGuest(@PathVariable Long id) {
         guestService.deactivateGuest(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }
