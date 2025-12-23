@@ -15,8 +15,12 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
+    public Guest createGuest(Guest guest) {
+        return guestRepository.save(guest);
+    }
+
+    @Override
     public Guest getGuestByEmail(String email) {
-        return guestRepository.findByEmail(email)
-                .orElse(null);
+        return guestRepository.findByEmail(email).orElse(null);
     }
 }

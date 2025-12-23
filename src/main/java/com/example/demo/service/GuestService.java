@@ -4,6 +4,7 @@ import com.example.demo.model.Guest;
 
 public interface GuestService {
 
-    Guest getGuestByEmail(String email);
+    Guest createGuest(Guest guest);
 
+    Guest getGuestByEmail(String email);
 }
