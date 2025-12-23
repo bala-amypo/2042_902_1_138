@@ -1,65 +1,69 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Guest;
+import com.example.demo.repository.GuestRepository;
 import com.example.demo.service.GuestService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class GuestServiceImpl implements GuestService {
-
-    private final List<Guest> guests = new ArrayList<>();
-    private Long idCounter = 1L;
-
+    
+    private final GuestRepository guestRepository;
+    private final PasswordEncoder passwordEncoder;
+    
+    public GuestServiceImpl(GuestRepository guestRepository, PasswordEncoder passwordEncoder) {
+        this.guestRepository = guestRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+    
     @Override
     public Guest createGuest(Guest guest) {
-        guest.setId(idCounter++);
-        guests.add(guest);
-        return guest;
+        if (guestRepository.existsByEmail(guest.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        guest.setPassword(passwordEncoder.encode(guest.getPassword()));
+        return guestRepository.save(guest);
     }
-
-    @Override
-    public Guest getGuestByEmail(String email) {
-        return guests.stream()
-                .filter(g -> g.getEmail().equals(email))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public Guest getGuestById(Long id) {
-        return guests.stream()
-                .filter(g -> g.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public List<Guest> getAllGuests() {
-        return guests;
-    }
-
+    
     @Override
     public Guest updateGuest(Long id, Guest guest) {
-        Guest existing = getGuestById(id);
-        if (existing != null) {
-            existing.setFullName(guest.getFullName());
-            existing.setEmail(guest.getEmail());
-            existing.setPhoneNumber(guest.getPhoneNumber());
-            existing.setRole(guest.getRole());
-            existing.setVerified(guest.isVerified());
-            existing.setActive(guest.isActive());
-        }
-        return existing;
+        Guest existingGuest = guestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
+        
+        existingGuest.setFullName(guest.getFullName());
+        existingGuest.setPhoneNumber(guest.getPhoneNumber());
+        existingGuest.setVerified(guest.getVerified());
+        existingGuest.setActive(guest.getActive());
+        existingGuest.setRole(guest.getRole());
+        
+        return guestRepository.save(existingGuest);
     }
-
+    
+    @Override
+    public Guest getGuestById(Long id) {
+        return guestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
+    }
+    
+    @Override
+    public Guest getGuestByEmail(String email) {
+        return guestRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
+    }
+    
+    @Override
+    public List<Guest> getAllGuests() {
+        return guestRepository.findAll();
+    }
+    
     @Override
     public void deactivateGuest(Long id) {
-        Guest guest = getGuestById(id);
-        if (guest != null) {
-            guest.setActive(false);
-        }
+        Guest guest = guestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
+        guest.setActive(false);
+        guestRepository.save(guest);
     }
 }
