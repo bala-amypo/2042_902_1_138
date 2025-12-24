@@ -36,18 +36,16 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ---------------- REGISTER ----------------
-
     @PostMapping("/register")
     @Operation(summary = "Register a new guest")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
 
         Guest guest = new Guest();
         guest.setEmail(request.getEmail());
-        guest.setPassword(request.getPassword()); // ✅ RAW password (encoded in service)
+        guest.setPassword(passwordEncoder.encode(request.getPassword()));
         guest.setFullName(request.getFullName());
         guest.setPhoneNumber(request.getPhoneNumber());
-        guest.setRole("ROLE_USER");               // ✅ Correct role
+        guest.setRole("guest");
         guest.setVerified(true);
         guest.setActive(true);
 
@@ -58,25 +56,20 @@ public class AuthController {
         );
     }
 
-    // ---------------- LOGIN ----------------
-
     @PostMapping("/login")
     @Operation(summary = "Login guest")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
 
-        Guest guest;
-        try {
-            guest = guestService.getGuestByEmail(request.getEmail());
-        } catch (Exception e) {
-            return ResponseEntity.ok(
-                    new ApiResponse(false, "Invalid credentials", null)
-            );
+        Guest guest = guestService.getGuestByEmail(request.getEmail());
+
+        if (guest == null) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "Invalid credentials"));
         }
 
         if (!passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
-            return ResponseEntity.ok(
-                    new ApiResponse(false, "Invalid credentials", null)
-            );
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "Invalid credentials"));
         }
 
         Authentication authentication =
@@ -84,15 +77,11 @@ public class AuthController {
                         guest.getEmail(),
                         null,
                         Collections.singletonList(
-                                new SimpleGrantedAuthority(guest.getRole())
+                                new SimpleGrantedAuthority("ROLE_" + guest.getRole().toUpperCase())
                         )
                 );
 
-        String token = jwtTokenProvider.generateToken(
-        guest.getEmail(),
-        guest.getRole()
-);
-
+        String token = jwtTokenProvider.generateToken(authentication);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);

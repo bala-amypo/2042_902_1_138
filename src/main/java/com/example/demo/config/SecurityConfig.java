@@ -14,43 +14,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+    
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
-
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    
     @Bean
-    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-
-        http
-            .securityMatcher("/api/**")   // 👈 VERY IMPORTANT
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth ->
-                auth.anyRequest().authenticated()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/hello-servlet").permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-    @Bean
-    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
-
-        http
-            .securityMatcher("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/hello-servlet")
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth ->
-                auth.anyRequest().permitAll()
-            );
-
+        
         return http.build();
     }
 }
