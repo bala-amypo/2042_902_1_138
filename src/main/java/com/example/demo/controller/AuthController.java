@@ -88,7 +88,11 @@ public class AuthController {
                         )
                 );
 
-        String token = jwtTokenProvider.generateToken(authentication);
+        String token = jwtTokenProvider.generateToken(
+        guest.getEmail(),
+        guest.getRole()
+);
+
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
