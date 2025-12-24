@@ -68,6 +68,7 @@ public class AuthController {
         }
 
         if (!passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
+                System.out.println(passwordEncoder.matches(request.getPassword(), guest.getPassword()));
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, "Invalid credentials"));
         }
