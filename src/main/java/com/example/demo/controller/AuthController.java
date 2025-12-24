@@ -42,10 +42,11 @@ public class AuthController {
 
         Guest guest = new Guest();
         guest.setEmail(request.getEmail());
-        guest.setPassword(passwordEncoder.encode(request.getPassword()));
+        guest.setPassword(request.getPassword());
+
         guest.setFullName(request.getFullName());
         guest.setPhoneNumber(request.getPhoneNumber());
-        guest.setRole("guest");
+        guest.setRole("ROLE_USER");
         guest.setVerified(true);
         guest.setActive(true);
 
