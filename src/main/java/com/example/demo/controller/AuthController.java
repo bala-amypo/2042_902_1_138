@@ -2,9 +2,12 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.Guest;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.GuestService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication")
 public class AuthController {
 
     private final GuestService guestService;
@@ -32,28 +36,70 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // ---------------- REGISTER ----------------
+
+    @PostMapping("/register")
+    @Operation(summary = "Register a new guest")
+    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
+
+        Guest guest = new Guest();
+        guest.setEmail(request.getEmail());
+        guest.setPassword(request.getPassword()); // ✅ RAW password (encoded in service)
+        guest.setFullName(request.getFullName());
+        guest.setPhoneNumber(request.getPhoneNumber());
+        guest.setRole("ROLE_USER");               // ✅ Correct role
+        guest.setVerified(true);
+        guest.setActive(true);
+
+        Guest createdGuest = guestService.createGuest(guest);
+
+        return ResponseEntity.ok(
+                new ApiResponse(true, "Guest registered successfully", createdGuest)
+        );
+    }
+
+    // ---------------- LOGIN ----------------
+
     @PostMapping("/login")
+    @Operation(summary = "Login guest")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
 
-        Guest guest = guestService.getGuestByEmail(request.getEmail());
+        Guest guest;
+        try {
+            guest = guestService.getGuestByEmail(request.getEmail());
+        } catch (Exception e) {
+            return ResponseEntity.ok(
+                    new ApiResponse(false, "Invalid credentials", null)
+            );
+        }
 
-        if (guest == null || !passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
-            return ResponseEntity.ok(new ApiResponse(false, "Invalid credentials", null));
+        if (!passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
+            return ResponseEntity.ok(
+                    new ApiResponse(false, "Invalid credentials", null)
+            );
         }
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
                         guest.getEmail(),
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority(guest.getRole()))
+                        Collections.singletonList(
+                                new SimpleGrantedAuthority(guest.getRole())
+                        )
                 );
 
-        String token = jwtTokenProvider.generateToken(guest.getEmail(), guest.getRole());
+        String token = jwtTokenProvider.generateToken(
+        guest.getEmail(),
+        guest.getRole()
+);
+
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
         response.put("guest", guest);
 
-        return ResponseEntity.ok(new ApiResponse(true, "Login successful", response));
+        return ResponseEntity.ok(
+                new ApiResponse(true, "Login successful", response)
+        );
     }
 }
