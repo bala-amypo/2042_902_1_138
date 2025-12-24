@@ -23,14 +23,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    // 🔥 THIS IS THE KEY FIX
+    // 🔥 FINAL FIX: path CONTAINS, not startsWith
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/auth/")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
-                || path.startsWith("/hello-servlet");
+        return path.contains("/auth/")
+                || path.contains("/swagger-ui")
+                || path.contains("/v3/api-docs")
+                || path.contains("/hello-servlet");
     }
 
     @Override
