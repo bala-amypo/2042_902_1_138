@@ -36,17 +36,18 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // ---------------- REGISTER ----------------
+
     @PostMapping("/register")
     @Operation(summary = "Register a new guest")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
 
         Guest guest = new Guest();
         guest.setEmail(request.getEmail());
-        guest.setPassword(request.getPassword());
-
+        guest.setPassword(request.getPassword()); // ✅ RAW password (encoded in service)
         guest.setFullName(request.getFullName());
         guest.setPhoneNumber(request.getPhoneNumber());
-        guest.setRole("ROLE_USER");
+        guest.setRole("ROLE_USER");               // ✅ Correct role
         guest.setVerified(true);
         guest.setActive(true);
 
@@ -57,20 +58,25 @@ public class AuthController {
         );
     }
 
+    // ---------------- LOGIN ----------------
+
     @PostMapping("/login")
     @Operation(summary = "Login guest")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
 
-        Guest guest = guestService.getGuestByEmail(request.getEmail());
-
-        if (guest == null) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "Invalid credentials"));
+        Guest guest;
+        try {
+            guest = guestService.getGuestByEmail(request.getEmail());
+        } catch (Exception e) {
+            return ResponseEntity.ok(
+                    new ApiResponse(false, "Invalid credentials", null)
+            );
         }
 
         if (!passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "Invalid credentials"));
+            return ResponseEntity.ok(
+                    new ApiResponse(false, "Invalid credentials", null)
+            );
         }
 
         Authentication authentication =
@@ -78,7 +84,7 @@ public class AuthController {
                         guest.getEmail(),
                         null,
                         Collections.singletonList(
-                                new SimpleGrantedAuthority("ROLE_" + guest.getRole().toUpperCase())
+                                new SimpleGrantedAuthority(guest.getRole())
                         )
                 );
 
