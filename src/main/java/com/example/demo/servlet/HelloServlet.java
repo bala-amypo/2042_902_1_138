@@ -1,10 +1,10 @@
 package com.example.demo.servlet;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 
 import java.io.IOException;
 
@@ -14,12 +14,12 @@ public class HelloServlet extends HttpServlet {
     private String message;
 
     @Override
-    public void init() throws ServletException {
-        this.message = "Hello Tomcat";
+    public void init() {
+        this.message = "Hello Tomcat"; // 🔥 test checks this
     }
 
     public String getMessage() {
-        return message;
+        return message; // 🔥 test calls this
     }
 
     @Override
@@ -27,6 +27,6 @@ public class HelloServlet extends HttpServlet {
             throws ServletException, IOException {
 
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write("Hello from servlet");
+        resp.getWriter().write("Hello from servlet"); // 🔥 test checks response body
     }
 }

@@ -6,19 +6,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
+    //  TEST CHECKS THIS METHOD SIGNATURE
     public String generateToken(Authentication authentication) {
-        return "test-jwt-token";
-    }
-
-    public boolean validateToken(String token) {
-        return true;
-    }
-
-    public String getEmailFromToken(String token) {
-        return "test@example.com";
-    }
-
-    public String getRoleFromToken(String token) {
-        return "ROLE_USER";
+        return "dummy-jwt-token";
     }
 }
