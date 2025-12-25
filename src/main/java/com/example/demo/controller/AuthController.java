@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
-import com.example.demo.model.Guest;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.GuestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +27,13 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Registration endpoint
     @PostMapping("/register")
     public String register(@RequestBody RegisterRequest registerRequest) {
-        Guest guest = new Guest();
-        guest.setEmail(registerRequest.getEmail());
-        guest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        guest.setName(registerRequest.getName());
-        guestService.addGuest(guest); 
+        // Call existing GuestService method directly
+        guestService.save(registerRequest); // <-- existing method
         return "Guest registered successfully!";
     }
+
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -47,8 +43,9 @@ public class AuthController {
                 )
         );
 
+        // Generate JWT token
         String token = jwtTokenProvider.generateToken(authentication);
 
-        return token; 
+        return token;
     }
 }
