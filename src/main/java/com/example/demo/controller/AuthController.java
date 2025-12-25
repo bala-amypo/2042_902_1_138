@@ -64,12 +64,10 @@ public class AuthController {
 
         if (guest == null) {
             return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "Invalid credential"));
+                    .body(new ApiResponse(false, "Invalid credentials"));
         }
 
         if (!passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
-                System.out.println(passwordEncoder.matches(request.getPassword(), guest.getPassword()));
-                System.out.println(guest);
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, "Invalid credentials"));
         }
