@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "digital_keys")
 public class DigitalKey {
 
     @Id
@@ -18,22 +17,56 @@ public class DigitalKey {
     private String keyValue;
 
     private Timestamp issuedAt;
-
     private Timestamp expiresAt;
+    private boolean active;
 
-    private Boolean active = true;
-
-    public DigitalKey() {}
-
-    public DigitalKey(RoomBooking booking, String keyValue,
-                      Timestamp issuedAt, Timestamp expiresAt,
-                      Boolean active) {
-        this.booking = booking;
-        this.keyValue = keyValue;
-        this.issuedAt = issuedAt;
-        this.expiresAt = expiresAt;
-        this.active = active;
+    // ----- GETTERS -----
+    public Long getId() {
+        return id;
     }
 
-    // getters and setters
+    public RoomBooking getBooking() {
+        return booking;
+    }
+
+    public String getKeyValue() {
+        return keyValue;
+    }
+
+    public Timestamp getIssuedAt() {
+        return issuedAt;
+    }
+
+    public Timestamp getExpiresAt() {
+        return expiresAt;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    // ----- SETTERS -----
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setBooking(RoomBooking booking) {
+        this.booking = booking;
+    }
+
+    public void setKeyValue(String keyValue) {
+        this.keyValue = keyValue;
+    }
+
+    public void setIssuedAt(Timestamp issuedAt) {
+        this.issuedAt = issuedAt;
+    }
+
+    public void setExpiresAt(Timestamp expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }
