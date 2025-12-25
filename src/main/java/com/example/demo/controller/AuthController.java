@@ -1,51 +1,44 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
+import com.example.demo.model.Guest;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.GuestService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private GuestService guestService;
+    private final GuestService guestService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthController(GuestService guestService, JwtTokenProvider jwtTokenProvider) {
+        this.guestService = guestService;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest registerRequest) {
-        // Call existing GuestService method directly
-        guestService.save(registerRequest); // <-- existing method
-        return "Guest registered successfully!";
+    public ResponseEntity<String> registerGuest(@RequestBody RegisterRequest registerRequest) {
+        // Convert DTO to entity
+        Guest guest = new Guest();
+        guest.setName(registerRequest.getName());
+        guest.setEmail(registerRequest.getEmail());
+        guest.setPassword(registerRequest.getPassword());
+
+        guestService.addGuest(guest);
+
+        return ResponseEntity.ok("Guest registered successfully");
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
-
-        // Generate JWT token
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        return token;
+    public ResponseEntity<String> login(@RequestBody RegisterRequest request) {
+        Guest guest = guestService.findByEmailAndPassword(request.getEmail(), request.getPassword());
+        if (guest != null) {
+            String token = jwtTokenProvider.generateToken(guest.getEmail(), "USER");
+            return ResponseEntity.ok(token);
+        }
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
 }
