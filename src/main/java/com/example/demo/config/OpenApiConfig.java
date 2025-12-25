@@ -25,7 +25,7 @@ public class OpenApiConfig {
 
         return new OpenAPI()
                 .servers(List.of(
-                        new Server().url("https://9415.pro604cr.amypo.ai/")   // your server URL
+                        new Server().url("https://9057.408procr.amypo.ai/")   // your server URL
                 ))
                 .info(new Info()
                         .title("Your API Docs")
