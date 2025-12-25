@@ -26,7 +26,7 @@ public class OpenApiConfig {
                 .name("Authorization");
 
         return new OpenAPI()
-                // ✅ KEEP YOUR SERVER URL
+                //  KEEP YOUR SERVER URL
                 .servers(List.of(
                         new Server().url("https://9058.408procr.amypo.ai/")
                 ))
@@ -46,7 +46,7 @@ public class OpenApiConfig {
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", bearerAuthScheme)
                 )
-                // ✅ THIS IS WHAT MAKES AUTHORIZE BUTTON APPEAR
+                //  THIS IS WHAT MAKES AUTHORIZE BUTTON APPEAR
                 .addSecurityItem(new SecurityRequirement()
                         .addList("bearerAuth")
                 );
