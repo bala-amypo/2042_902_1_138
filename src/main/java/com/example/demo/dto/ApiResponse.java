@@ -20,14 +20,29 @@ public class ApiResponse {
     }
     
     // Getters and Setters
-    public boolean isSuccess() { return success; }
-    public void setSuccess(boolean success) { this.success = success; }
+    public boolean isSuccess() { 
+        return success; 
+    }
     
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public void setSuccess(boolean success) { 
+        this.success = success; 
+    }
     
-    public Object getData() { return data; }
-    public void setData(Object data) { this.data = data; }
+    public String getMessage() { 
+        return message; 
+    }
+    
+    public void setMessage(String message) { 
+        this.message = message; 
+    }
+    
+    public Object getData() { 
+        return data; 
+    }
+    
+    public void setData(Object data) { 
+        this.data = data; 
+    }
     
     // Static helper methods
     public static ApiResponse success(String message) {

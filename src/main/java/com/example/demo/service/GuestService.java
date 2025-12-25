@@ -11,6 +11,8 @@ public interface GuestService {
     
     Guest getGuestById(Long id);
     
+    Guest getGuestByEmail(String email); // Add this method
+    
     List<Guest> getAllGuests();
     
     void deactivateGuest(Long id);

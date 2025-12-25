@@ -51,6 +51,12 @@ public class GuestServiceImpl implements GuestService {
     }
     
     @Override
+    public Guest getGuestByEmail(String email) {
+        return guestRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found with email: " + email));
+    }
+    
+    @Override
     public List<Guest> getAllGuests() {
         return guestRepository.findAll();
     }
