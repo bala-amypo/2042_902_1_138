@@ -40,7 +40,6 @@ public class AccessLogServiceImpl implements AccessLogService {
             throw new IllegalArgumentException("future");
         }
         
-        // Verify digital key exists and is active
         DigitalKey digitalKey = digitalKeyRepository.findById(log.getDigitalKey().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Digital key not found"));
         
@@ -50,7 +49,6 @@ public class AccessLogServiceImpl implements AccessLogService {
             return accessLogRepository.save(log);
         }
         
-        // Verify guest exists and is active
         Guest guest = guestRepository.findById(log.getGuest().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
         
@@ -60,14 +58,12 @@ public class AccessLogServiceImpl implements AccessLogService {
             return accessLogRepository.save(log);
         }
         
-        // Check if guest is the booking owner
         if (digitalKey.getBooking().getGuest().getId().equals(guest.getId())) {
             log.setResult("SUCCESS");
             log.setReason("Booking owner");
             return accessLogRepository.save(log);
         }
         
-        // Check if guest is a roommate
         boolean isRoommate = digitalKey.getBooking().getRoommates().stream()
                 .anyMatch(roommate -> roommate.getId().equals(guest.getId()));
         
@@ -77,7 +73,6 @@ public class AccessLogServiceImpl implements AccessLogService {
             return accessLogRepository.save(log);
         }
         
-        // Check if guest has an approved share request
         List<KeyShareRequest> shareRequests = keyShareRequestRepository.findBySharedWithId(guest.getId());
         boolean hasValidShare = shareRequests.stream()
                 .anyMatch(request -> 

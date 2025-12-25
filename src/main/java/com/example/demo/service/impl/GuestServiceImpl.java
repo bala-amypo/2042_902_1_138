@@ -25,7 +25,6 @@ public class GuestServiceImpl implements GuestService {
         if (guestRepository.existsByEmail(guest.getEmail())) {
             throw new IllegalArgumentException("Email already");
         }
-        
         guest.setPassword(passwordEncoder.encode(guest.getPassword()));
         return guestRepository.save(guest);
     }
@@ -33,27 +32,25 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public Guest updateGuest(Long id, Guest guest) {
         Guest existingGuest = guestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Guest not found with id: " + id));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
         existingGuest.setFullName(guest.getFullName());
         existingGuest.setPhoneNumber(guest.getPhoneNumber());
         existingGuest.setVerified(guest.getVerified());
         existingGuest.setActive(guest.getActive());
         existingGuest.setRole(guest.getRole());
-        
         return guestRepository.save(existingGuest);
     }
     
     @Override
     public Guest getGuestById(Long id) {
         return guestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Guest not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
     }
     
     @Override
     public Guest getGuestByEmail(String email) {
         return guestRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Guest not found with email: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
     }
     
     @Override
@@ -64,8 +61,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public void deactivateGuest(Long id) {
         Guest guest = guestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Guest not found with id: " + id));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
         guest.setActive(false);
         guestRepository.save(guest);
     }

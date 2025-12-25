@@ -29,8 +29,7 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
     
     @Override
     public KeyShareRequest createShareRequest(KeyShareRequest request) {
-        if (request.getShareEnd().before(request.getShareStart()) || 
-            request.getShareEnd().equals(request.getShareStart())) {
+        if (request.getShareEnd().before(request.getShareStart())) {
             throw new IllegalArgumentException("Share end");
         }
         
@@ -38,7 +37,6 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
             throw new IllegalArgumentException("sharedBy and sharedWith");
         }
         
-        // Verify digital key exists and is active
         DigitalKey digitalKey = digitalKeyRepository.findById(request.getDigitalKey().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Digital key not found"));
         
@@ -46,7 +44,6 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
             throw new IllegalStateException("Key is not active");
         }
         
-        // Verify guests exist
         Guest sharedBy = guestRepository.findById(request.getSharedBy().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Sharing guest not found"));
         
@@ -64,8 +61,7 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
     @Override
     public KeyShareRequest updateStatus(Long requestId, String status) {
         KeyShareRequest request = keyShareRequestRepository.findById(requestId)
-                .orElseThrow(() -> new ResourceNotFoundException("Key share request not found with id: " + requestId));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Key share request not found"));
         request.setStatus(status);
         return keyShareRequestRepository.save(request);
     }
@@ -73,7 +69,7 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
     @Override
     public KeyShareRequest getShareRequestById(Long id) {
         return keyShareRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Key share request not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Key share request not found"));
     }
     
     @Override

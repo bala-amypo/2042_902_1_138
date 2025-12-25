@@ -27,7 +27,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
     @Override
     public DigitalKey generateKey(Long bookingId) {
         RoomBooking booking = roomBookingRepository.findById(bookingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
         
         if (!booking.getActive()) {
             throw new IllegalStateException("inactive");
@@ -39,10 +39,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
         
         Timestamp now = new Timestamp(System.currentTimeMillis());
         digitalKey.setIssuedAt(now);
-        
-        // Set expiration to 24 hours from now
-        long oneDayInMillis = 24 * 60 * 60 * 1000L;
-        digitalKey.setExpiresAt(new Timestamp(now.getTime() + oneDayInMillis));
+        digitalKey.setExpiresAt(new Timestamp(now.getTime() + 24 * 60 * 60 * 1000));
         digitalKey.setActive(true);
         
         return digitalKeyRepository.save(digitalKey);
@@ -51,13 +48,13 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
     @Override
     public DigitalKey getKeyById(Long id) {
         return digitalKeyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Digital key not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Digital key not found"));
     }
     
     @Override
     public DigitalKey getActiveKeyForBooking(Long bookingId) {
         return digitalKeyRepository.findByBookingIdAndActiveTrue(bookingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Active digital key not found for booking id: " + bookingId));
+                .orElseThrow(() -> new ResourceNotFoundException("Active digital key not found"));
     }
     
     @Override
