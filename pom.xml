@@ -84,7 +84,7 @@
             <scope>provided</scope>
         </dependency>
         
-        <!-- Lombok (Optional but helpful) -->
+        <!-- Lombok for auto-generating getters/setters -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
