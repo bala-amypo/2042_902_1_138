@@ -31,15 +31,15 @@ public class AuthController {
     // Registration endpoint
     @PostMapping("/register")
     public String register(@RequestBody RegisterRequest registerRequest) {
-        // Use existing method in GuestService
-        guestService.saveGuest(registerRequest); // <-- must match existing method
+        Guest guest = new Guest();
+        guest.setEmail(registerRequest.getEmail());
+        guest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        guest.setName(registerRequest.getName());
+        guestService.addGuest(guest); 
         return "Guest registered successfully!";
     }
-
-    // Login endpoint
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest loginRequest) {
-        // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -47,9 +47,8 @@ public class AuthController {
                 )
         );
 
-        // Generate JWT token
         String token = jwtTokenProvider.generateToken(authentication);
 
-        return token; // return token as string
+        return token; 
     }
 }
