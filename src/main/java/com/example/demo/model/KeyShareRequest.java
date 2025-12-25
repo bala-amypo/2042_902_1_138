@@ -4,15 +4,15 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "key_share_requests")
 public class KeyShareRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private DigitalKey digitalKey;
+    private Timestamp shareStart;
+    private Timestamp shareEnd;
+    private String status;
 
     @ManyToOne
     private Guest sharedBy;
@@ -20,30 +20,23 @@ public class KeyShareRequest {
     @ManyToOne
     private Guest sharedWith;
 
-    private Timestamp shareStart;
-    private Timestamp shareEnd;
-
-    private String status = "PENDING";
-
-    private Timestamp createdAt;
-
     public KeyShareRequest() {}
 
-    public KeyShareRequest(DigitalKey digitalKey, Guest sharedBy,
-                            Guest sharedWith, Timestamp shareStart,
-                            Timestamp shareEnd, String status) {
-        this.digitalKey = digitalKey;
-        this.sharedBy = sharedBy;
-        this.sharedWith = sharedWith;
-        this.shareStart = shareStart;
-        this.shareEnd = shareEnd;
-        this.status = status;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    @PrePersist
-    public void onCreate() {
-        createdAt = new Timestamp(System.currentTimeMillis());
-    }
+    public Timestamp getShareStart() { return shareStart; }
+    public void setShareStart(Timestamp shareStart) { this.shareStart = shareStart; }
 
-    // getters and setters
+    public Timestamp getShareEnd() { return shareEnd; }
+    public void setShareEnd(Timestamp shareEnd) { this.shareEnd = shareEnd; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Guest getSharedBy() { return sharedBy; }
+    public void setSharedBy(Guest sharedBy) { this.sharedBy = sharedBy; }
+
+    public Guest getSharedWith() { return sharedWith; }
+    public void setSharedWith(Guest sharedWith) { this.sharedWith = sharedWith; }
 }
