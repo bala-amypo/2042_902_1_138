@@ -1,42 +1,31 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 public class KeyShareRequest {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Timestamp shareStart;
-    private Timestamp shareEnd;
-    private String status;
+    private String recipientEmail;
+    private LocalDateTime requestedAt;
+    private boolean accepted;
 
     @ManyToOne
-    private Guest sharedBy;
+    @JoinColumn(name = "digital_key_id")
+    private DigitalKey digitalKey;
 
-    @ManyToOne
-    private Guest sharedWith;
-
-    public KeyShareRequest() {}
-
+    // getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public Timestamp getShareStart() { return shareStart; }
-    public void setShareStart(Timestamp shareStart) { this.shareStart = shareStart; }
-
-    public Timestamp getShareEnd() { return shareEnd; }
-    public void setShareEnd(Timestamp shareEnd) { this.shareEnd = shareEnd; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public Guest getSharedBy() { return sharedBy; }
-    public void setSharedBy(Guest sharedBy) { this.sharedBy = sharedBy; }
-
-    public Guest getSharedWith() { return sharedWith; }
-    public void setSharedWith(Guest sharedWith) { this.sharedWith = sharedWith; }
+    public String getRecipientEmail() { return recipientEmail; }
+    public void setRecipientEmail(String recipientEmail) { this.recipientEmail = recipientEmail; }
+    public LocalDateTime getRequestedAt() { return requestedAt; }
+    public void setRequestedAt(LocalDateTime requestedAt) { this.requestedAt = requestedAt; }
+    public boolean isAccepted() { return accepted; }
+    public void setAccepted(boolean accepted) { this.accepted = accepted; }
+    public DigitalKey getDigitalKey() { return digitalKey; }
+    public void setDigitalKey(DigitalKey digitalKey) { this.digitalKey = digitalKey; }
 }
