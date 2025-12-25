@@ -1,30 +1,70 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.util.List;
+import java.sql.Timestamp;
 
 @Entity
+@Table(name = "guests")
 public class Guest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String name;
+    
+    private String fullName;
+    
+    @Column(unique = true)
     private String email;
-    private String phone;
-
-    @OneToMany(mappedBy = "guest", cascade = CascadeType.ALL)
-    private List<RoomBooking> bookings;
-
-    // getters and setters
+    
+    private String phoneNumber;
+    private String password;
+    private Boolean verified = false;
+    private Boolean active = true;
+    private String role = "ROLE_USER";
+    private Timestamp createdAt;
+    
+    public Guest() {}
+    
+    public Guest(String fullName, String email, String phoneNumber, String password, Boolean verified, Boolean active, String role, Timestamp createdAt) {
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.verified = verified;
+        this.active = active;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Timestamp(System.currentTimeMillis());
+    }
+    
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-    public List<RoomBooking> getBookings() { return bookings; }
-    public void setBookings(List<RoomBooking> bookings) { this.bookings = bookings; }
+    
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
+    public Boolean getVerified() { return verified; }
+    public void setVerified(Boolean verified) { this.verified = verified; }
+    
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
+    
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+    
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 }
