@@ -1,32 +1,30 @@
 package com.example.demo.servlet;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-
 import java.io.IOException;
 
 @WebServlet(urlPatterns = "/hello-servlet")
 public class HelloServlet extends HttpServlet {
-
+    
     private String message;
-
+    
     @Override
-    public void init() {
-        this.message = "Hello Tomcat"; // 🔥 test checks this
+    public void init() throws ServletException {
+        message = "Hello Tomcat";
     }
-
-    public String getMessage() {
-        return message; // 🔥 test calls this
-    }
-
+    
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write("Hello from servlet"); // 🔥 test checks response body
+        response.setContentType("text/plain");
+        response.getWriter().write("Hello from servlet");
+    }
+    
+    public String getMessage() {
+        return message;
     }
 }
