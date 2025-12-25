@@ -11,13 +11,13 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
-@Service   // 🔥 THIS WAS MISSING
+@Service
 public class DigitalKeyServiceImpl implements DigitalKeyService {
 
     private final DigitalKeyRepository digitalKeyRepository;
     private final RoomBookingRepository roomBookingRepository;
 
-    // ✅ Constructor Injection (as per test rule)
+    //  Constructor Injection (TEST SUITE REQUIRES THIS)
     public DigitalKeyServiceImpl(
             DigitalKeyRepository digitalKeyRepository,
             RoomBookingRepository roomBookingRepository
@@ -37,9 +37,9 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
 
         DigitalKey key = new DigitalKey();
         key.setBooking(booking);
-        key.setKeyValue("KEY-" + System.currentTimeMillis());
+        key.setKeyValue("KEY-" + bookingId + "-" + System.currentTimeMillis());
         key.setIssuedAt(Timestamp.from(Instant.now()));
-        key.setExpiresAt(Timestamp.from(Instant.now().plusSeconds(60 * 60 * 24)));
+        key.setExpiresAt(Timestamp.from(Instant.now().plusSeconds(86400))); // 1 day
         key.setActive(true);
 
         return digitalKeyRepository.save(key);
@@ -54,7 +54,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
     @Override
     public DigitalKey getActiveKeyForBooking(Long bookingId) {
         return digitalKeyRepository.findByBookingIdAndActiveTrue(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("No active key"));
+                .orElseThrow(() -> new IllegalArgumentException("Active key not found"));
     }
 
     @Override
