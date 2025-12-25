@@ -1,17 +1,17 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.AccessLog;
 import com.example.demo.service.AccessLogService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/access-logs")
-@Tag(name = "Access Logs")
+@Tag(name = "Access Logs", description = "Access log operations")
 public class AccessLogController {
     
     private final AccessLogService accessLogService;
@@ -22,19 +22,26 @@ public class AccessLogController {
     
     @PostMapping
     @Operation(summary = "Create access log")
-    public ResponseEntity<AccessLog> createLog(@RequestBody AccessLog log) {
-        return ResponseEntity.ok(accessLogService.createLog(log));
+    public ApiResponse createLog(@RequestBody AccessLog log) {
+        try {
+            AccessLog createdLog = accessLogService.createLog(log);
+            return ApiResponse.success("Access log created successfully", createdLog);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(e.getMessage());
+        }
     }
     
     @GetMapping("/key/{keyId}")
-    @Operation(summary = "Get logs for key")
-    public ResponseEntity<List<AccessLog>> getLogsForKey(@Parameter(name = "keyId", description = "Key ID") @PathVariable Long keyId) {
-        return ResponseEntity.ok(accessLogService.getLogsForKey(keyId));
+    @Operation(summary = "Get access logs for key")
+    public ApiResponse getLogsForKey(@PathVariable Long keyId) {
+        List<AccessLog> logs = accessLogService.getLogsForKey(keyId);
+        return ApiResponse.success("Access logs retrieved successfully", logs);
     }
     
     @GetMapping("/guest/{guestId}")
-    @Operation(summary = "Get logs for guest")
-    public ResponseEntity<List<AccessLog>> getLogsForGuest(@Parameter(name = "guestId", description = "Guest ID") @PathVariable Long guestId) {
-        return ResponseEntity.ok(accessLogService.getLogsForGuest(guestId));
+    @Operation(summary = "Get access logs for guest")
+    public ApiResponse getLogsForGuest(@PathVariable Long guestId) {
+        List<AccessLog> logs = accessLogService.getLogsForGuest(guestId);
+        return ApiResponse.success("Access logs retrieved successfully", logs);
     }
 }

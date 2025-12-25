@@ -1,6 +1,5 @@
 package com.example.demo.servlet;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,14 +12,14 @@ public class HelloServlet extends HttpServlet {
     private String message;
     
     @Override
-    public void init() throws ServletException {
+    public void init() {
         message = "Hello Tomcat";
     }
     
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/plain");
+        response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write("Hello from servlet");
     }
     
