@@ -1,60 +1,31 @@
 package com.example.demo.security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import com.example.demo.model.Guest;
+import com.example.demo.repository.GuestRepository;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection;
-import java.util.Collections;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
-public class CustomUserDetails implements UserDetails {
-    private Long id;
-    private String email;
-    private String password;
-    private String role;
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
 
-    public CustomUserDetails(Long id, String email, String password, String role) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
+    private final GuestRepository guestRepository;
 
-    public Long getId() {
-        return id;
+    public CustomUserDetailsService(GuestRepository guestRepository) {
+        this.guestRepository = guestRepository;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
-    }
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Guest guest = guestRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+        return new CustomUserDetails(
+                guest.getId(),
+                guest.getEmail(),
+                guest.getPassword(),
+                guest.getRole()
+        );
     }
 }
