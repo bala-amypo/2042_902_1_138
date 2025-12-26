@@ -1,6 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.BookingRequest;
+import com.example.demo.model.Guest;
 import com.example.demo.model.RoomBooking;
+import com.example.demo.service.GuestService;
 import com.example.demo.service.RoomBookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,14 +18,25 @@ import java.util.List;
 public class RoomBookingController {
 
     private final RoomBookingService roomBookingService;
+    private final GuestService guestService;
 
-    public RoomBookingController(RoomBookingService roomBookingService) {
+    public RoomBookingController(RoomBookingService roomBookingService, GuestService guestService) {
         this.roomBookingService = roomBookingService;
+        this.guestService = guestService;
     }
 
     @PostMapping
     @Operation(summary = "Create new booking")
-    public ResponseEntity<RoomBooking> createBooking(@RequestBody RoomBooking booking) {
+    public ResponseEntity<RoomBooking> createBooking(@RequestBody BookingRequest request) {
+        Guest guest = guestService.getGuestById(request.getGuestId());
+        
+        RoomBooking booking = new RoomBooking();
+        booking.setGuest(guest);
+        booking.setRoomNumber(request.getRoomNumber());
+        booking.setCheckInDate(request.getCheckInDate());
+        booking.setCheckOutDate(request.getCheckOutDate());
+        booking.setActive(true);
+        
         return ResponseEntity.ok(roomBookingService.createBooking(booking));
     }
 
@@ -41,7 +55,15 @@ public class RoomBookingController {
     @PutMapping("/{id}")
     @Operation(summary = "Update booking")
     public ResponseEntity<RoomBooking> updateBooking(@Parameter(description = "Booking ID") @PathVariable Long id, 
-                                                   @RequestBody RoomBooking booking) {
+                                                   @RequestBody BookingRequest request) {
+        Guest guest = guestService.getGuestById(request.getGuestId());
+        
+        RoomBooking booking = new RoomBooking();
+        booking.setGuest(guest);
+        booking.setRoomNumber(request.getRoomNumber());
+        booking.setCheckInDate(request.getCheckInDate());
+        booking.setCheckOutDate(request.getCheckOutDate());
+        
         return ResponseEntity.ok(roomBookingService.updateBooking(id, booking));
     }
 
