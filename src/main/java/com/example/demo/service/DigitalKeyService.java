@@ -1,11 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.model.DigitalKey;
+import com.example.demo.model.AccessLog;
 import java.util.List;
 
-public interface DigitalKeyService {
-    DigitalKey generateKey(Long bookingId);
-    DigitalKey getKeyById(Long id);
-    DigitalKey getActiveKeyForBooking(Long bookingId);
-    List<DigitalKey> getKeysForGuest(Long guestId);
+public interface AccessLogService {
+    AccessLog createLog(AccessLog log);
+    List<AccessLog> getLogsForKey(Long keyId);
+    List<AccessLog> getLogsForGuest(Long guestId);
 }
