@@ -1,74 +1,54 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.Guest;
 import com.example.demo.service.GuestService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/guests")
-@Tag(name = "Guest Management", description = "Guest CRUD operations")
+@Tag(name = "Guest Management")
 public class GuestController {
-    
+
     private final GuestService guestService;
-    
+
     public GuestController(GuestService guestService) {
         this.guestService = guestService;
     }
-    
+
     @PostMapping
-    @Operation(summary = "Create a new guest")
-    public ResponseEntity<ApiResponse> createGuest(@RequestBody Guest guest) {
-        try {
-            Guest createdGuest = guestService.createGuest(guest);
-            return ResponseEntity.ok(ApiResponse.success("Guest created successfully", createdGuest));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    @Operation(summary = "Create new guest")
+    public ResponseEntity<Guest> createGuest(@RequestBody Guest guest) {
+        return ResponseEntity.ok(guestService.createGuest(guest));
     }
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Get guest by ID")
-    public ResponseEntity<ApiResponse> getGuestById(@PathVariable Long id) {
-        try {
-            Guest guest = guestService.getGuestById(id);
-            return ResponseEntity.ok(ApiResponse.success("Guest retrieved successfully", guest));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    public ResponseEntity<Guest> getGuest(@Parameter(description = "Guest ID") @PathVariable Long id) {
+        return ResponseEntity.ok(guestService.getGuestById(id));
     }
-    
+
     @GetMapping
     @Operation(summary = "Get all guests")
-    public ResponseEntity<ApiResponse> getAllGuests() {
-        List<Guest> guests = guestService.getAllGuests();
-        return ResponseEntity.ok(ApiResponse.success("Guests retrieved successfully", guests));
+    public ResponseEntity<List<Guest>> getAllGuests() {
+        return ResponseEntity.ok(guestService.getAllGuests());
     }
-    
+
     @PutMapping("/{id}")
     @Operation(summary = "Update guest")
-    public ResponseEntity<ApiResponse> updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
-        try {
-            Guest updatedGuest = guestService.updateGuest(id, guest);
-            return ResponseEntity.ok(ApiResponse.success("Guest updated successfully", updatedGuest));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    public ResponseEntity<Guest> updateGuest(@Parameter(description = "Guest ID") @PathVariable Long id, 
+                                           @RequestBody Guest guest) {
+        return ResponseEntity.ok(guestService.updateGuest(id, guest));
     }
-    
+
     @PutMapping("/{id}/deactivate")
     @Operation(summary = "Deactivate guest")
-    public ResponseEntity<ApiResponse> deactivateGuest(@PathVariable Long id) {
-        try {
-            guestService.deactivateGuest(id);
-            return ResponseEntity.ok(ApiResponse.success("Guest deactivated successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    public ResponseEntity<Void> deactivateGuest(@Parameter(description = "Guest ID") @PathVariable Long id) {
+        guestService.deactivateGuest(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,70 +1,53 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.KeyShareRequest;
 import com.example.demo.service.KeyShareRequestService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/key-share")
-@Tag(name = "Key Sharing", description = "Key sharing operations")
+@Tag(name = "Key Sharing")
 public class KeyShareRequestController {
-    
+
     private final KeyShareRequestService keyShareRequestService;
-    
+
     public KeyShareRequestController(KeyShareRequestService keyShareRequestService) {
         this.keyShareRequestService = keyShareRequestService;
     }
-    
+
     @PostMapping
     @Operation(summary = "Create key share request")
-    public ResponseEntity<ApiResponse> createShareRequest(@RequestBody KeyShareRequest request) {
-        try {
-            KeyShareRequest createdRequest = keyShareRequestService.createShareRequest(request);
-            return ResponseEntity.ok(ApiResponse.success("Key share request created successfully", createdRequest));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    public ResponseEntity<KeyShareRequest> createShareRequest(@RequestBody KeyShareRequest request) {
+        return ResponseEntity.ok(keyShareRequestService.createShareRequest(request));
     }
-    
+
     @GetMapping("/{id}")
-    @Operation(summary = "Get key share request by ID")
-    public ResponseEntity<ApiResponse> getShareRequestById(@PathVariable Long id) {
-        try {
-            KeyShareRequest request = keyShareRequestService.getShareRequestById(id);
-            return ResponseEntity.ok(ApiResponse.success("Key share request retrieved successfully", request));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    @Operation(summary = "Get share request by ID")
+    public ResponseEntity<KeyShareRequest> getShareRequest(@Parameter(description = "Request ID") @PathVariable Long id) {
+        return ResponseEntity.ok(keyShareRequestService.getShareRequestById(id));
     }
-    
+
     @PutMapping("/{id}/status")
-    @Operation(summary = "Update key share request status")
-    public ResponseEntity<ApiResponse> updateStatus(@PathVariable Long id, @RequestParam String status) {
-        try {
-            KeyShareRequest updatedRequest = keyShareRequestService.updateStatus(id, status);
-            return ResponseEntity.ok(ApiResponse.success("Key share request status updated successfully", updatedRequest));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+    @Operation(summary = "Update share request status")
+    public ResponseEntity<KeyShareRequest> updateStatus(@Parameter(description = "Request ID") @PathVariable Long id, 
+                                                       @RequestParam String status) {
+        return ResponseEntity.ok(keyShareRequestService.updateStatus(id, status));
     }
-    
+
     @GetMapping("/shared-by/{guestId}")
     @Operation(summary = "Get requests shared by guest")
-    public ResponseEntity<ApiResponse> getRequestsSharedBy(@PathVariable Long guestId) {
-        List<KeyShareRequest> requests = keyShareRequestService.getRequestsSharedBy(guestId);
-        return ResponseEntity.ok(ApiResponse.success("Shared requests retrieved successfully", requests));
+    public ResponseEntity<List<KeyShareRequest>> getRequestsSharedBy(@Parameter(description = "Guest ID") @PathVariable Long guestId) {
+        return ResponseEntity.ok(keyShareRequestService.getRequestsSharedBy(guestId));
     }
-    
+
     @GetMapping("/shared-with/{guestId}")
     @Operation(summary = "Get requests shared with guest")
-    public ResponseEntity<ApiResponse> getRequestsSharedWith(@PathVariable Long guestId) {
-        List<KeyShareRequest> requests = keyShareRequestService.getRequestsSharedWith(guestId);
-        return ResponseEntity.ok(ApiResponse.success("Received requests retrieved successfully", requests));
+    public ResponseEntity<List<KeyShareRequest>> getRequestsSharedWith(@Parameter(description = "Guest ID") @PathVariable Long guestId) {
+        return ResponseEntity.ok(keyShareRequestService.getRequestsSharedWith(guestId));
     }
 }
