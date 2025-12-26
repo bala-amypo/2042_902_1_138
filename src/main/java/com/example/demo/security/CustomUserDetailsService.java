@@ -1,34 +1,60 @@
 package com.example.demo.security;
 
-import com.example.demo.model.Guest;
-import com.example.demo.repository.GuestRepository;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-
+import java.util.Collection;
 import java.util.Collections;
 
-@Service
-public class CustomUserDetailsService implements UserDetailsService {
-    
-    private final GuestRepository guestRepository;
-    
-    public CustomUserDetailsService(GuestRepository guestRepository) {
-        this.guestRepository = guestRepository;
+public class CustomUserDetails implements UserDetails {
+    private Long id;
+    private String email;
+    private String password;
+    private String role;
+
+    public CustomUserDetails(Long id, String email, String password, String role) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.role = role;
     }
-    
+
+    public Long getId() {
+        return id;
+    }
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Guest guest = guestRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        
-        return new User(
-                guest.getEmail(),
-                guest.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(guest.getRole()))
-        );
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
