@@ -6,8 +6,6 @@ import com.example.demo.model.RoomBooking;
 import com.example.demo.repository.GuestRepository;
 import com.example.demo.repository.RoomBookingRepository;
 import com.example.demo.service.RoomBookingService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,21 +25,16 @@ public class RoomBookingServiceImpl implements RoomBookingService {
     @Override
     public RoomBooking createBooking(RoomBooking booking) {
 
-        // ✅ DATE VALIDATION
         if (!booking.getCheckInDate().isBefore(booking.getCheckOutDate())) {
             throw new IllegalArgumentException("Check-in date must be before check-out date");
         }
 
-        // 🔥 GET LOGGED-IN USER (GUEST) FROM JWT
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName(); // email from token
-
-        Guest guest = guestRepository.findByEmail(email)
+        Long guestId = booking.getGuest().getId();
+        Guest guest = guestRepository.findById(guestId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Guest not found with email: " + email)
+                        new ResourceNotFoundException("Guest not found with id: " + guestId)
                 );
 
-        // ✅ SET GUEST AUTOMATICALLY
         booking.setGuest(guest);
         booking.setActive(true);
 

@@ -1,84 +1,45 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.Guest;
+import com.example.demo.repository.GuestRepository;
 import com.example.demo.security.JwtTokenProvider;
-import com.example.demo.service.GuestService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication")
 public class AuthController {
 
-    private final GuestService guestService;
+    private final GuestRepository guestRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
 
-    public AuthController(GuestService guestService,
-                          JwtTokenProvider jwtTokenProvider,
-                          AuthenticationManager authenticationManager) {
-        this.guestService = guestService;
+    public AuthController(GuestRepository guestRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtTokenProvider jwtTokenProvider) {
+        this.guestRepository = guestRepository;
+        this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
     }
 
-    // ✅ REGISTER
-    @PostMapping("/register")
-    @Operation(summary = "Register new guest")
-    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
-
-        Guest guest = new Guest();
-        guest.setEmail(request.getEmail());
-        guest.setPassword(request.getPassword()); // encoding in service
-        guest.setFullName(request.getFullName());
-        guest.setPhoneNumber(request.getPhoneNumber());
-        guest.setRole(
-                request.getRole() != null ? request.getRole() : "ROLE_USER"
-        );
-
-        // 🔥 VERY IMPORTANT (DB NOT NULL COLUMNS)
-        guest.setActive(true);
-        guest.setVerified(false);
-
-        Guest created = guestService.createGuest(guest);
-
-        return ResponseEntity.ok(
-                new ApiResponse(true, "Guest registered successfully", created)
-        );
-    }
-
-    // ✅ LOGIN
     @PostMapping("/login")
-    @Operation(summary = "Login guest")
-    public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+        Guest guest = guestRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email"));
+
+        if (!passwordEncoder.matches(request.getPassword(), guest.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        String token = jwtTokenProvider.generateToken(
+                guest.getEmail(),
+                guest.getId(),
+                guest.getRole()
         );
 
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
-        response.put("email", request.getEmail());
-
-        return ResponseEntity.ok(
-                new ApiResponse(true, "Login successful", response)
-        );
+        return ResponseEntity.ok(token);
     }
 }
