@@ -1,40 +1,99 @@
-package com.example.demo.controller;
+CONFIG 
 
-import com.example.demo.model.AccessLog;
-import com.example.demo.service.AccessLogService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+OpenApiConfig.java
+package com.example.demo.config;
+
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/access-logs")
-@Tag(name = "Access Logs")
-public class AccessLogController {
+@Configuration
+public class OpenApiConfig {
 
-    private final AccessLogService accessLogService;
+    @Bean
+    public OpenAPI customOpenAPI() {
 
-    public AccessLogController(AccessLogService accessLogService) {
-        this.accessLogService = accessLogService;
+        // Bearer token security scheme (this enables Authorize button)
+        SecurityScheme bearerAuthScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .in(SecurityScheme.In.HEADER)
+                .name("Authorization");
+
+        return new OpenAPI()
+                // KEEP YOUR SERVER URL
+                .servers(List.of(
+                        new Server().url("https://9057.408procr.amypo.ai/")
+                ))
+                .info(new Info()
+                        .title("Your API Docs")
+                        .version("1.0.0")
+                )
+                .components(new Components()
+                        .addSecuritySchemes("bearerAuth", bearerAuthScheme)
+                )
+                //  THIS IS WHAT MAKES AUTHORIZE BUTTON APPEAR
+                .addSecurityItem(new SecurityRequirement()
+                        .addList("bearerAuth")
+                );
+    }
+}
+
+SecurityConfig.java
+package com.example.demo.config;
+
+import com.example.demo.security.JwtAuthenticationFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    @PostMapping
-    @Operation(summary = "Create access log")
-    public ResponseEntity<AccessLog> createLog(@RequestBody AccessLog log) {
-        return ResponseEntity.ok(accessLogService.createLog(log));
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
-    @GetMapping("/key/{keyId}")
-    @Operation(summary = "Get logs for digital key")
-    public ResponseEntity<List<AccessLog>> getLogsForKey(@Parameter(description = "Key ID") @PathVariable Long keyId) {
-        return ResponseEntity.ok(accessLogService.getLogsForKey(keyId));
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
-    @GetMapping("/guest/{guestId}")
-    @Operation(summary = "Get logs for guest")
-    public ResponseEntity<List<AccessLog>> getLogsForGuest(@Parameter(description = "Guest ID") @PathVariable Long guestId) {
-        return ResponseEntity.ok(accessLogService.getLogsForGuest(guestId));
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/hello-servlet").permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 }
