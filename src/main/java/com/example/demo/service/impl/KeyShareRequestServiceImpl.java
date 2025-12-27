@@ -1,74 +1,68 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.model.DigitalKey;
+import com.example.demo.model.Guest;
 import com.example.demo.model.KeyShareRequest;
-import com.example.demo.repository.KeyShareRequestRepository;
 import com.example.demo.repository.DigitalKeyRepository;
 import com.example.demo.repository.GuestRepository;
+import com.example.demo.repository.KeyShareRequestRepository;
 import com.example.demo.service.KeyShareRequestService;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 import java.util.List;
 
 @Service
 public class KeyShareRequestServiceImpl implements KeyShareRequestService {
 
-    private final KeyShareRequestRepository keyShareRequestRepository;
-    private final DigitalKeyRepository digitalKeyRepository;
-    private final GuestRepository guestRepository;
+    private final KeyShareRequestRepository repo;
+    private final DigitalKeyRepository digitalKeyRepo;
+    private final GuestRepository guestRepo;
 
-    public KeyShareRequestServiceImpl(KeyShareRequestRepository keyShareRequestRepository, 
-                                    DigitalKeyRepository digitalKeyRepository, 
-                                    GuestRepository guestRepository) {
-        this.keyShareRequestRepository = keyShareRequestRepository;
-        this.digitalKeyRepository = digitalKeyRepository;
-        this.guestRepository = guestRepository;
+    // ✅ CONSTRUCTOR MUST MATCH TEST FILE
+    public KeyShareRequestServiceImpl(
+            KeyShareRequestRepository repo,
+            DigitalKeyRepository digitalKeyRepo,
+            GuestRepository guestRepo) {
+        this.repo = repo;
+        this.digitalKeyRepo = digitalKeyRepo;
+        this.guestRepo = guestRepo;
     }
 
     @Override
     public KeyShareRequest createShareRequest(KeyShareRequest request) {
-        if (request.getShareEnd() != null && request.getShareStart() != null && 
-            !request.getShareEnd().isAfter(request.getShareStart())) {
-            throw new IllegalArgumentException("Share end time must be after share start time");
-        }
-        
-        if (request.getSharedBy() != null && request.getSharedWith() != null && 
-            request.getSharedBy().getId().equals(request.getSharedWith().getId())) {
-            throw new IllegalArgumentException("sharedBy and sharedWith cannot be the same guest");
-        }
-        
-        // Verify entities exist
-        digitalKeyRepository.findById(request.getDigitalKey().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Digital key not found"));
-        guestRepository.findById(request.getSharedBy().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("SharedBy guest not found"));
-        guestRepository.findById(request.getSharedWith().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("SharedWith guest not found"));
-        
-        request.setStatus("PENDING");
-        return keyShareRequestRepository.save(request);
-    }
 
-    @Override
-    public KeyShareRequest updateStatus(Long requestId, String status) {
-        KeyShareRequest request = keyShareRequestRepository.findById(requestId)
-                .orElseThrow(() -> new ResourceNotFoundException("Share request not found with id: " + requestId));
-        request.setStatus(status);
-        return keyShareRequestRepository.save(request);
-    }
+        if (request.getShareEnd().isBefore(request.getShareStart())) {
+            throw new IllegalArgumentException("Share end before start");
+        }
 
-    @Override
-    public KeyShareRequest getShareRequestById(Long id) {
-        return keyShareRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Share request not found with id: " + id));
+        if (request.getSharedBy().getId()
+                .equals(request.getSharedWith().getId())) {
+            throw new IllegalArgumentException("sharedBy and sharedWith same");
+        }
+
+        DigitalKey key = digitalKeyRepo
+                .findById(request.getDigitalKey().getId())
+                .orElseThrow();
+
+        Guest sharedWith = guestRepo
+                .findById(request.getSharedWith().getId())
+                .orElseThrow();
+
+        if (!sharedWith.getActive() || !sharedWith.getVerified()) {
+            throw new IllegalStateException("Guest not eligible");
+        }
+
+        return repo.save(request);
     }
 
     @Override
     public List<KeyShareRequest> getRequestsSharedBy(Long guestId) {
-        return keyShareRequestRepository.findBySharedById(guestId);
+        return repo.findBySharedById(guestId);
     }
 
     @Override
     public List<KeyShareRequest> getRequestsSharedWith(Long guestId) {
-        return keyShareRequestRepository.findBySharedWithId(guestId);
+        return repo.findBySharedWithId(guestId);
     }
 }
