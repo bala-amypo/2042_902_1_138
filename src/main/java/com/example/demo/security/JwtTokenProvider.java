@@ -1,12 +1,80 @@
+package com.example.demo.security;
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.util.Date;
 
-public String generateToken(Authentication authentication) {
+@Component
+public class JwtTokenProvider {
 
-    UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+    // ✅ MUST be ≥ 256 bits (32+ chars)
+    private static final String SECRET =
+            "ThisIsA256BitSecretKeyForJwtAuthenticationDemoProject";
 
-    // ⚠️ TEMP SIMPLE TOKEN (for compilation & testing)
-    // Replace with real JWT logic later
-    return userPrincipal.getUsername() + "_token";
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+
+    private final SecretKey secretKey =
+            Keys.hmacShaKeyFor(SECRET.getBytes());
+
+    // ----------------------------------------------------------------
+    // ✅ REQUIRED BY TEST CASE
+    // generateToken(Authentication auth)
+    // ----------------------------------------------------------------
+    public String generateToken(Authentication authentication) {
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        String role = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_USER");
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername()) // email
+                .claim("userId", userDetails.getId())
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // ----------------------------------------------------------------
+    // ✅ TOKEN PARSING
+    // ----------------------------------------------------------------
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public Long getUserIdFromToken(String token) {
+        return getClaims(token).get("userId", Long.class);
+    }
+
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        return getClaims(token).get("role", String.class);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            return false;
+        }
+    }
 }
