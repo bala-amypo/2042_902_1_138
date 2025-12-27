@@ -1,6 +1,3 @@
-servlet
-
-HelloServlet.java
 package com.example.demo.servlet;
 
 import jakarta.servlet.ServletConfig;
