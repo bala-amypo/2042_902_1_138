@@ -62,3 +62,4 @@ public class RoomBookingServiceImpl implements RoomBookingService {
         roomBookingRepository.save(booking);
     }
 }
+
