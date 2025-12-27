@@ -1,41 +1,45 @@
 package com.example.demo.security;
 
-import org.springframework.security.core.GrantedAuthority;
+import com.example.demo.model.Guest;
+import org.springframework.security.core.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection;
-import java.util.Collections;
 
-public class CustomUserDetails implements UserDetails {
-    private Long id;
-    private String email;
-    private String password;
-    private String role;
+import java.util.*;
 
-    public CustomUserDetails(Long id, String email, String password, String role) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.role = role;
+public class GuestPrincipal implements UserDetails {
+
+    private final Guest guest;
+
+    public GuestPrincipal(Guest guest) {
+        this.guest = guest;
     }
 
     public Long getId() {
-        return id;
+        return guest.getId();
+    }
+
+    public String getEmail() {
+        return guest.getEmail();
+    }
+
+    public String getRole() {
+        return guest.getRole();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority(guest.getRole()));
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return guest.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return guest.getEmail();
     }
 
     @Override
@@ -55,6 +59,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return guest.getActive();
     }
 }
