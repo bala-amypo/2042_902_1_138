@@ -1,51 +1,15 @@
 package com.example.demo.security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-
-public class CustomUserDetails implements UserDetails {
-
-    private final String username;
-
-    public CustomUserDetails(String username) {
-        this.username = username;
-    }
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public CustomUserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        return new CustomUserDetails(username);
     }
 }
