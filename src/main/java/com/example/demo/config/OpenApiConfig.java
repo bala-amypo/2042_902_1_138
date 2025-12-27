@@ -22,7 +22,7 @@ public class OpenApiConfig  {
                 .bearerFormat("JWT");
 
         Server server = new Server()
-                .url("https://9174.32procr.amypo.ai/")
+                .url("https://9057.408procr.amypo.ai/")
                 .description("Production Server");
 
         return new OpenAPI()
