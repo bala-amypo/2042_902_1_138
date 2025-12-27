@@ -1,16 +1,4 @@
-package com.example.demo.exception;
 
-public class BadRequestException extends RuntimeException {
-    public BadRequestException(String message) {
-        super(message);
-    }
-}
-
-
-Exception
-
-
-GlobalExceptionHandler.java
 package com.example.demo.exception;
 
 import com.example.demo.dto.ApiResponse;
@@ -81,12 +69,3 @@ public class GlobalExceptionHandler {
     }
 }
 
-
-ResourceNotFoundException.java
-package com.example.demo.exception;
-
-public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-}
