@@ -3,10 +3,10 @@ package com.example.demo.controller;
 import com.example.demo.model.RoomBooking;
 import com.example.demo.service.RoomBookingService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -28,26 +28,28 @@ public class RoomBookingController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get booking by ID")
-    public ResponseEntity<RoomBooking> getBooking(@Parameter(description = "Booking ID") @PathVariable Long id) {
+    public ResponseEntity<RoomBooking> getBooking(@PathVariable Long id) {
         return ResponseEntity.ok(roomBookingService.getBookingById(id));
     }
 
     @GetMapping("/guest/{guestId}")
     @Operation(summary = "Get bookings for guest")
-    public ResponseEntity<List<RoomBooking>> getBookingsForGuest(@Parameter(description = "Guest ID") @PathVariable Long guestId) {
+    public ResponseEntity<List<RoomBooking>> getBookingsForGuest(@PathVariable Long guestId) {
         return ResponseEntity.ok(roomBookingService.getBookingsForGuest(guestId));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update booking")
-    public ResponseEntity<RoomBooking> updateBooking(@Parameter(description = "Booking ID") @PathVariable Long id, 
-                                                   @RequestBody RoomBooking booking) {
+    public ResponseEntity<RoomBooking> updateBooking(
+            @PathVariable Long id,
+            @RequestBody RoomBooking booking) {
+
         return ResponseEntity.ok(roomBookingService.updateBooking(id, booking));
     }
 
     @PutMapping("/{id}/deactivate")
     @Operation(summary = "Deactivate booking")
-    public ResponseEntity<Void> deactivateBooking(@Parameter(description = "Booking ID") @PathVariable Long id) {
+    public ResponseEntity<Void> deactivateBooking(@PathVariable Long id) {
         roomBookingService.deactivateBooking(id);
         return ResponseEntity.ok().build();
     }
