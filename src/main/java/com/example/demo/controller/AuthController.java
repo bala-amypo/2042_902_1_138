@@ -10,14 +10,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
-
-    public AuthController(AuthenticationManager authenticationManager,
-                          JwtTokenProvider jwtTokenProvider) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        // Use loginRequest.getEmail() and loginRequest.getPassword()
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+        
+        // Your logic to check credentials...
+        return ResponseEntity.ok(new AuthResponse("success-token-here"));
     }
+}
 
     @PostMapping("/login")
     public JwtResponse login(@RequestParam String email,
