@@ -6,6 +6,8 @@ import com.example.demo.model.RoomBooking;
 import com.example.demo.repository.GuestRepository;
 import com.example.demo.repository.RoomBookingRepository;
 import com.example.demo.service.RoomBookingService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,13 +32,16 @@ public class RoomBookingServiceImpl implements RoomBookingService {
             throw new IllegalArgumentException("Check-in date must be before check-out date");
         }
 
-        // 🔥 IMPORTANT – ATTACH MANAGED GUEST ENTITY
-        Long guestId = booking.getGuest().getId();
-        Guest guest = guestRepository.findById(guestId)
+        // 🔥 GET LOGGED-IN USER (GUEST) FROM JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // email from token
+
+        Guest guest = guestRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Guest not found with id: " + guestId)
+                        new ResourceNotFoundException("Guest not found with email: " + email)
                 );
 
+        // ✅ SET GUEST AUTOMATICALLY
         booking.setGuest(guest);
         booking.setActive(true);
 
@@ -73,8 +78,6 @@ public class RoomBookingServiceImpl implements RoomBookingService {
 
     @Override
     public List<RoomBooking> getBookingsForGuest(Long guestId) {
-
-        // 🔥 FIXED METHOD CALL
         return roomBookingRepository.findByGuest_Id(guestId);
     }
 
