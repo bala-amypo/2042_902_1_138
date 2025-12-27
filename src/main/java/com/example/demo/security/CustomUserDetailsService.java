@@ -1,42 +1,32 @@
-
 package com.example.demo.security;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
 import java.util.Collections;
 
-public class CustomUserDetailsService {
-    private Long id;
-    private String email;
-    private String password;
-    private String role;
+public class CustomUserDetails implements UserDetails {
 
-    public CustomUserDetails(Long id, String email, String password, String role) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
+    private final String username;
 
-    public Long getId() {
-        return id;
+    public CustomUserDetails(String username) {
+        this.username = username;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return Collections.emptyList();
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
