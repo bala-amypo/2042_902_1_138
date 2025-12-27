@@ -1,64 +1,64 @@
 package com.example.demo.config;
 
-import com.example.demo.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // REQUIRED for AuthController
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    // ✅ THIS FIXES SWAGGER LOGIN ISSUE
-    @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity http,
-            JwtAuthenticationFilter jwtFilter) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // 1. Disable CSRF for REST APIs
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(sm ->
-                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+            
+            // 2. Enable CORS (Crucial if using a frontend or Swagger)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // 3. Configure Request Authorization
             .authorizeHttpRequests(auth -> auth
-                // ✅ ALLOW SWAGGER
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui.html"
-                ).permitAll()
-
-                // ✅ ALLOW AUTH APIs
+                // Allow login and registration
                 .requestMatchers("/auth/**").permitAll()
+                
+                // CRITICAL: Allow Spring's internal error handling path
+                // If login fails and redirects to /error, a 403 occurs if this isn't here
+                .requestMatchers("/error").permitAll()
 
-                // everything else secured
+                // Allow Swagger UI and API Docs
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                // Everything else must be authenticated
                 .anyRequest().authenticated()
             )
-            // ❌ DISABLE DEFAULT LOGIN PAGE
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable());
 
-        http.addFilterBefore(jwtFilter,
-                UsernamePasswordAuthenticationFilter.class);
+            // 4. Set Session to Stateless (for JWT)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
 
         return http.build();
+    }
+
+    // 5. CORS Configuration to allow requests from your frontend/Swagger UI
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*")); // For production, replace "*" with your domain
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
