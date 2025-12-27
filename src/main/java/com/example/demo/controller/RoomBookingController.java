@@ -22,6 +22,12 @@ public class RoomBookingController {
         this.roomBookingService = roomBookingService;
     }
 
+    @GetMapping
+    @Operation(summary = "Get all bookings")
+    public ResponseEntity<List<RoomBooking>> getAllBookings() {
+        return ResponseEntity.ok(roomBookingService.getAllBookings());
+    }
+
     @PostMapping
     @Operation(summary = "Create a new booking")
     public ResponseEntity<RoomBooking> createBooking(@RequestBody RoomBooking booking) {
