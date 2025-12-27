@@ -10,17 +10,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    // CHANGE: Use @RequestBody instead of @RequestParam
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        // Now you get data from the body
-        String email = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
-        
-        // Your authentication logic here...
-        return ResponseEntity.ok("Login Successful");
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public AuthController(AuthenticationManager authenticationManager,
+                          JwtTokenProvider jwtTokenProvider) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
-}
 
     @PostMapping("/login")
     public JwtResponse login(@RequestParam String email,
