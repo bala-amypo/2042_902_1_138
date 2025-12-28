@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // ✅ MUST be ≥ 256 bits (32+ chars)
+    // 256-bit secret (IMPORTANT)
     private static final String SECRET =
             "ThisIsA256BitSecretKeyForJwtAuthenticationDemoProject";
 
@@ -21,34 +21,35 @@ public class JwtTokenProvider {
     private final SecretKey secretKey =
             Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    // ----------------------------------------------------------------
-    // ✅ REQUIRED BY TEST CASE
-    // generateToken(Authentication auth)
-    // ----------------------------------------------------------------
+    // -------------------------------------------------
+    // GENERATE TOKEN
+    // -------------------------------------------------
     public String generateToken(Authentication authentication) {
 
-        CustomUserDetails userDetails =
+        CustomUserDetails user =
                 (CustomUserDetails) authentication.getPrincipal();
 
-        String role = userDetails.getAuthorities()
+        String role = user.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("ROLE_USER");
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername()) // email
-                .claim("userId", userDetails.getId())
+                .setSubject(user.getUsername())
+                .claim("userId", user.getId())
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+                )
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ----------------------------------------------------------------
-    // ✅ TOKEN PARSING
-    // ----------------------------------------------------------------
+    // -------------------------------------------------
+    // PARSE TOKEN
+    // -------------------------------------------------
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
