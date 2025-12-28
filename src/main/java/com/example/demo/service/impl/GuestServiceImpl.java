@@ -1,12 +1,23 @@
+package com.example.demo.service.impl;
+
+import com.example.demo.model.Guest;
+import com.example.demo.repository.GuestRepository;
+import com.example.demo.exception.ResourceNotFoundException;
+
+import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
+
 @Service
 public class GuestServiceImpl {
 
     private final GuestRepository repo;
     private final PasswordEncoder encoder;
 
-    public GuestServiceImpl(GuestRepository r, PasswordEncoder e) {
-        this.repo = r;
-        this.encoder = e;
+    public GuestServiceImpl(GuestRepository repo, PasswordEncoder encoder) {
+        this.repo = repo;
+        this.encoder = encoder;
     }
 
     public Guest createGuest(Guest g) {
@@ -19,22 +30,6 @@ public class GuestServiceImpl {
     public Guest getGuestById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("" + id));
-    }
-
-    public Guest updateGuest(Long id, Guest d) {
-        Guest g = getGuestById(id);
-        g.setFullName(d.getFullName());
-        g.setPhoneNumber(d.getPhoneNumber());
-        g.setVerified(d.getVerified());
-        g.setActive(d.getActive());
-        g.setRole(d.getRole());
-        return repo.save(g);
-    }
-
-    public void deactivateGuest(Long id) {
-        Guest g = getGuestById(id);
-        g.setActive(false);
-        repo.save(g);
     }
 
     public List<Guest> getAllGuests() {
