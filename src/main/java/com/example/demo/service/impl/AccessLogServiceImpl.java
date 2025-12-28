@@ -1,47 +1,74 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
+import com.example.demo.model.AccessLog;
+import com.example.demo.model.DigitalKey;
+import com.example.demo.model.Guest;
+import com.example.demo.model.KeyShareRequest;
+import com.example.demo.repository.AccessLogRepository;
+import com.example.demo.repository.DigitalKeyRepository;
+import com.example.demo.repository.GuestRepository;
+import com.example.demo.repository.KeyShareRequestRepository;
 import com.example.demo.service.AccessLogService;
-
+import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 
+@Service
 public class AccessLogServiceImpl implements AccessLogService {
 
-    private final AccessLogRepository logRepo;
-    private final DigitalKeyRepository keyRepo;
-    private final GuestRepository guestRepo;
-    private final KeyShareRequestRepository shareRepo;
+    private final AccessLogRepository accessLogRepository;
+    private final DigitalKeyRepository digitalKeyRepository;
+    private final GuestRepository guestRepository;
+    private final KeyShareRequestRepository keyShareRequestRepository;
 
-    public AccessLogServiceImpl(AccessLogRepository l, DigitalKeyRepository k,
-                                GuestRepository g, KeyShareRequestRepository s) {
-        this.logRepo = l;
-        this.keyRepo = k;
-        this.guestRepo = g;
-        this.shareRepo = s;
+    public AccessLogServiceImpl(AccessLogRepository accessLogRepository, 
+                                DigitalKeyRepository digitalKeyRepository,
+                                GuestRepository guestRepository,
+                                KeyShareRequestRepository keyShareRequestRepository) {
+        this.accessLogRepository = accessLogRepository;
+        this.digitalKeyRepository = digitalKeyRepository;
+        this.guestRepository = guestRepository;
+        this.keyShareRequestRepository = keyShareRequestRepository;
     }
 
-    public AccessLog createLog(AccessLog l) {
-        if (l.getAccessTime().isAfter(Instant.now()))
-            throw new IllegalArgumentException();
+    @Override
+    public AccessLog createLog(AccessLog log) {
+        if (log.getAccessTime().isAfter(Instant.now())) {
+            throw new IllegalArgumentException("Access time cannot be in the future");
+        }
 
-        DigitalKey k = keyRepo.findById(l.getDigitalKey().getId()).orElse(null);
-        Guest g = guestRepo.findById(l.getGuest().getId()).orElse(null);
+        // Check if access should be granted
+        boolean granted = false;
+        DigitalKey key = digitalKeyRepository.findById(log.getDigitalKey().getId()).orElse(null);
+        Guest guest = guestRepository.findById(log.getGuest().getId()).orElse(null);
 
-        if (k != null && k.isActive())
-            l.setResult("SUCCESS");
-        else
-            l.setResult("DENIED");
+        if (key != null && Boolean.TRUE.equals(key.getActive())) {
+            // Check direct ownership
+            if (key.getBooking().getGuest().getId().equals(guest.getId())) {
+                granted = true;
+            } else {
+                // Check shared access
+                List<KeyShareRequest> shares = keyShareRequestRepository.findBySharedWithId(guest.getId());
+                for (KeyShareRequest share : shares) {
+                    if (share.getDigitalKey().getId().equals(key.getId()) && share.isActive()) {
+                        granted = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-        return logRepo.save(l);
+        log.setResult(granted ? "SUCCESS" : "DENIED");
+        return accessLogRepository.save(log);
     }
 
+    @Override
     public List<AccessLog> getLogsForGuest(Long guestId) {
-        return logRepo.findByGuestId(guestId);
+        return accessLogRepository.findByGuestId(guestId);
     }
 
+    @Override
     public List<AccessLog> getLogsForKey(Long keyId) {
-        return logRepo.findByDigitalKeyId(keyId);
+        return accessLogRepository.findByDigitalKeyId(keyId);
     }
 }

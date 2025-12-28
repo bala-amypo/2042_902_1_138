@@ -3,26 +3,25 @@ package com.example.demo.security;
 import com.example.demo.model.Guest;
 import com.example.demo.repository.GuestRepository;
 import org.springframework.security.core.userdetails.*;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import java.util.Collections;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final GuestRepository repo;
+    private final GuestRepository guestRepository;
 
-    public CustomUserDetailsService(GuestRepository repo) {
-        this.repo = repo;
+    public CustomUserDetailsService(GuestRepository guestRepository) {
+        this.guestRepository = guestRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
-        Guest g = repo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found"));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Guest guest = guestRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return new User(g.getEmail(), g.getPassword(),
-                List.of(new SimpleGrantedAuthority(g.getRole())));
+        return new User(guest.getEmail(), guest.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(guest.getRole())));
     }
 }
