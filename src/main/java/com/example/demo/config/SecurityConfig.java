@@ -27,25 +27,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+        http.csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/auth/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**",
-                    "/h2-console/**"
-                ).permitAll()
+                .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**").permitAll()
                 .anyRequest().permitAll()
             )
-            // 🔑 THIS IS THE KEY CHANGE
-            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
-
+            .headers(headers -> headers.frameOptions().sameOrigin());
+        
         return http.build();
     }
 }

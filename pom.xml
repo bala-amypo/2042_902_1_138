@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="
-            http://maven.apache.org/POM/4.0.0
-            https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +13,6 @@
         <relativePath/>
     </parent>
 
-    <!-- Project Info -->
     <groupId>com.example</groupId>
     <artifactId>demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -24,13 +21,11 @@
     <name>demo</name>
     <description>Hotel Room Key Digital Share</description>
 
-    <!-- Properties -->
     <properties>
         <java.version>17</java.version>
         <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
-    <!-- Dependencies -->
     <dependencies>
 
         <!-- Spring Web -->
@@ -51,12 +46,17 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- ✅ MYSQL CONNECTOR -->
-        <dependency>
+        <!-- MySQL Connector -->
+        <!-- <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
-        </dependency>
+        </dependency> -->
+    <dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
 
         <!-- JWT -->
         <dependency>
@@ -64,14 +64,12 @@
             <artifactId>jjwt-api</artifactId>
             <version>${jjwt.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
@@ -94,7 +92,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito -->
+        <!-- Mockito (ONLY core is needed) -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -111,7 +109,6 @@
 
     </dependencies>
 
-    <!-- Build Plugins -->
     <build>
         <plugins>
 
