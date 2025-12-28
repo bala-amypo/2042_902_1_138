@@ -3,57 +3,33 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "guests")
 public class Guest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
-    private String name;
-
-    @Column(unique = true, nullable = false)
+    private String fullName;
     private String email;
-
+    private String password;
+    private String role;
     private boolean active = true;
 
-    public Guest() {}
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Guest(String name, String email) {
-        this.name = name;
-        this.email = email;
-        this.active = true;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getName() {
-        return name;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+    public boolean getActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 }
