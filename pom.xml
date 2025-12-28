@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="
-           http://maven.apache.org/POM/4.0.0
-           http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,53 +12,46 @@
     <packaging>jar</packaging>
 
     <name>demo</name>
-    <description>Spring Boot Backend with JWT, JPA, Swagger and TestNG</description>
+    <description>Spring Boot TestNG Project</description>
 
-    <!-- ================= PARENT ================= -->
+    <!-- ============================= -->
+    <!-- Parent -->
+    <!-- ============================= -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
-    <!-- ================= PROPERTIES ================= -->
+    <!-- ============================= -->
+    <!-- Properties -->
+    <!-- ============================= -->
     <properties>
         <java.version>17</java.version>
     </properties>
 
-    <!-- ================= DEPENDENCIES ================= -->
+    <!-- ============================= -->
+    <!-- Dependencies -->
+    <!-- ============================= -->
     <dependencies>
 
         <!-- Spring Boot Core -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Web (REST APIs) -->
+        <!-- Spring Data JPA -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
         <!-- Spring Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <!-- JPA + Hibernate -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <!-- H2 (for tests & local run) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <!-- JWT -->
@@ -81,34 +73,31 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Swagger / OpenAPI -->
+        <!-- Database (H2 for tests / MySQL optional) -->
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.2.0</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
-        <!-- ================= TEST DEPENDENCIES ================= -->
+        <!-- ============================= -->
+        <!-- TEST DEPENDENCIES -->
+        <!-- ============================= -->
 
-        <!-- Spring Boot Test (provides @SpringBootTest, @MockBean, Test Context) -->
+        <!-- Spring Boot Test (JUnit EXCLUDED) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <exclusions>
-                <!-- Remove JUnit -->
                 <exclusion>
                     <groupId>org.junit.jupiter</groupId>
-                    <artifactId>junit-jupiter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
+                    <artifactId>junit-jupiter-engine</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
 
-        <!-- TestNG -->
+        <!-- TestNG (MANDATORY) -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -125,22 +114,19 @@
 
     </dependencies>
 
-    <!-- ================= BUILD ================= -->
+    <!-- ============================= -->
+    <!-- Build -->
+    <!-- ============================= -->
     <build>
         <plugins>
 
-            <!-- Java Compiler -->
+            <!-- Spring Boot Plugin -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- TestNG Runner -->
+            <!-- FORCE TESTNG (CRITICAL) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -148,16 +134,7 @@
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <testNGArtifactName>org.testng:testng</testNGArtifactName>
-                    <includes>
-                        <include>**/*Tests.java</include>
-                    </includes>
                 </configuration>
-            </plugin>
-
-            <!-- Spring Boot Plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
         </plugins>
