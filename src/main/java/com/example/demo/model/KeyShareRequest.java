@@ -1,6 +1,11 @@
+package com.example.demo.model;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+
 @Entity
-@Getter @Setter
 public class KeyShareRequest {
+
     @Id @GeneratedValue
     private Long id;
 
@@ -10,4 +15,6 @@ public class KeyShareRequest {
 
     private Instant shareStart;
     private Instant shareEnd;
+
+    // getters & setters
 }

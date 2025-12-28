@@ -1,6 +1,11 @@
+package com.example.demo.model;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+
 @Entity
-@Getter @Setter
 public class DigitalKey {
+
     @Id @GeneratedValue
     private Long id;
 
@@ -11,4 +16,6 @@ public class DigitalKey {
 
     @ManyToOne
     private RoomBooking booking;
+
+    // getters & setters
 }

@@ -1,6 +1,11 @@
+package com.example.demo.model;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+
 @Entity
-@Getter @Setter
 public class AccessLog {
+
     @Id @GeneratedValue
     private Long id;
 
@@ -9,4 +14,6 @@ public class AccessLog {
 
     private Instant accessTime;
     private String result;
+
+    // getters & setters
 }

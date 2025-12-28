@@ -1,6 +1,12 @@
+package com.example.demo.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.*;
+
 @Entity
-@Getter @Setter
 public class RoomBooking {
+
     @Id @GeneratedValue
     private Long id;
 
@@ -14,4 +20,6 @@ public class RoomBooking {
 
     @ManyToMany
     private Set<Guest> roommates = new HashSet<>();
+
+    // getters & setters
 }
