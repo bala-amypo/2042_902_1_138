@@ -9,17 +9,11 @@
     <groupId>com.example</groupId>
     <artifactId>demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
-    <name>demo</name>
-    <description>Spring Boot + TestNG + Swagger Project</description>
-
-    <!-- ================= PARENT ================= -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.5</version>
-        <relativePath/>
     </parent>
 
     <properties>
@@ -64,27 +58,41 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Database -->
+        <!-- DB -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ================= SWAGGER / OPENAPI ================= -->
+        <!-- Swagger / OpenAPI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
 
-        <!-- ================= TEST STACK (NO JUNIT) ================= -->
+        <!-- ================= TEST (CRITICAL SECTION) ================= -->
 
-        <!-- Spring Test ONLY -->
+        <!-- Spring Boot Test (JUnit EXCLUDED) -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-engine</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>junit-platform-launcher</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- TestNG -->
@@ -108,13 +116,12 @@
     <build>
         <plugins>
 
-            <!-- Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- FORCE TESTNG (CRITICAL) -->
+            <!-- FORCE TESTNG -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
