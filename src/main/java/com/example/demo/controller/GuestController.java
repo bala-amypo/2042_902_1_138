@@ -1,43 +1,15 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Guest;
-import com.example.demo.service.GuestService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/guests")
+@Tag(name = "Guests", description = "Guest management APIs")
 public class GuestController {
-
-    private final GuestService guestService;
-
-    public GuestController(GuestService guestService) {
-        this.guestService = guestService;
-    }
-
-    @PostMapping
-    public Guest createGuest(@RequestBody Guest guest) {
-        return guestService.createGuest(guest);
-    }
-
-    @GetMapping("/{id}")
-    public Guest getGuest(@PathVariable Long id) {
-        return guestService.getGuestById(id);
-    }
-
-    @GetMapping
-    public List<Guest> getAllGuests() {
-        return guestService.getAllGuests();
-    }
-
-    @PutMapping("/{id}")
-    public Guest updateGuest(@PathVariable Long id, @RequestBody Guest guest) {
-        return guestService.updateGuest(id, guest);
-    }
-
-    @PutMapping("/{id}/deactivate")
-    public void deactivateGuest(@PathVariable Long id) {
-        guestService.deactivateGuest(id);
-    }
+    @Operation(summary = "Get guest by ID")
+    public void getGuest(@Parameter(description = "ID of guest") Long id) {}
 }
