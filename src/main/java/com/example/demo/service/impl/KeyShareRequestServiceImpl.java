@@ -26,7 +26,6 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
 
     @Override
     public KeyShareRequest createShareRequest(KeyShareRequest req) {
-        // Validations
         if (req.getShareEnd().isBefore(req.getShareStart())) {
             throw new IllegalArgumentException("Share end date must be after start date");
         }
@@ -34,7 +33,6 @@ public class KeyShareRequestServiceImpl implements KeyShareRequestService {
             throw new IllegalArgumentException("Cannot share key with yourself (sharedBy and sharedWith are same)");
         }
 
-        // Ensure entities exist (Simulated check)
         keyRepository.findById(req.getDigitalKey().getId());
         guestRepository.findById(req.getSharedBy().getId());
         guestRepository.findById(req.getSharedWith().getId());

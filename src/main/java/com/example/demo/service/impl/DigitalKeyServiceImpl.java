@@ -8,8 +8,8 @@ import com.example.demo.repository.RoomBookingRepository;
 import com.example.demo.service.DigitalKeyService;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DigitalKeyServiceImpl implements DigitalKeyService {
@@ -35,7 +35,7 @@ public class DigitalKeyServiceImpl implements DigitalKeyService {
         key.setBooking(booking);
         key.setKeyValue(UUID.randomUUID().toString());
         key.setIssuedAt(Instant.now());
-        key.setExpiresAt(Instant.now().plusSeconds(86400)); // 1 day
+        key.setExpiresAt(Instant.now().plusSeconds(86400));
         key.setActive(true);
         return digitalKeyRepository.save(key);
     }

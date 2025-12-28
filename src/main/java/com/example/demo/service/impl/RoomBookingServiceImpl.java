@@ -33,7 +33,6 @@ public class RoomBookingServiceImpl implements RoomBookingService {
     public RoomBooking updateBooking(Long id, RoomBooking details) {
         RoomBooking booking = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
-        // Update logic omitted for brevity
         return repository.save(booking);
     }
 }

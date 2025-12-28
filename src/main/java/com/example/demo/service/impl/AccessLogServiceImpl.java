@@ -1,13 +1,7 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.model.AccessLog;
-import com.example.demo.model.DigitalKey;
-import com.example.demo.model.Guest;
-import com.example.demo.model.KeyShareRequest;
-import com.example.demo.repository.AccessLogRepository;
-import com.example.demo.repository.DigitalKeyRepository;
-import com.example.demo.repository.GuestRepository;
-import com.example.demo.repository.KeyShareRequestRepository;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.AccessLogService;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
@@ -37,17 +31,14 @@ public class AccessLogServiceImpl implements AccessLogService {
             throw new IllegalArgumentException("Access time cannot be in the future");
         }
 
-        // Check if access should be granted
         boolean granted = false;
         DigitalKey key = digitalKeyRepository.findById(log.getDigitalKey().getId()).orElse(null);
         Guest guest = guestRepository.findById(log.getGuest().getId()).orElse(null);
 
         if (key != null && Boolean.TRUE.equals(key.getActive())) {
-            // Check direct ownership
             if (key.getBooking().getGuest().getId().equals(guest.getId())) {
                 granted = true;
             } else {
-                // Check shared access
                 List<KeyShareRequest> shares = keyShareRequestRepository.findBySharedWithId(guest.getId());
                 for (KeyShareRequest share : shares) {
                     if (share.getDigitalKey().getId().equals(key.getId()) && share.isActive()) {
