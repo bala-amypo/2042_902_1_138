@@ -1,49 +1,41 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Guest;
 import com.example.demo.repository.GuestRepository;
 import com.example.demo.service.GuestService;
-import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-
-@Service
 public class GuestServiceImpl implements GuestService {
 
-    private final GuestRepository guestRepository;
+    private final GuestRepository repo;
+    private final PasswordEncoder encoder;
 
-    public GuestServiceImpl(GuestRepository guestRepository) {
-        this.guestRepository = guestRepository;
+    public GuestServiceImpl(GuestRepository repo, PasswordEncoder encoder) {
+        this.repo = repo;
+        this.encoder = encoder;
     }
 
-    @Override
-    public Guest createGuest(Guest guest) {
-        return guestRepository.save(guest);
+    public Guest createGuest(Guest g) {
+        if (repo.existsByEmail(g.getEmail()))
+            throw new IllegalArgumentException("Email already exists");
+        g.setPassword(encoder.encode(g.getPassword()));
+        return repo.save(g);
     }
 
-    @Override
     public Guest getGuestById(Long id) {
-        return guestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Guest not found"));
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest not found"));
     }
 
-    @Override
-    public List<Guest> getAllGuests() {
-        return guestRepository.findAll();
-    }
-
-    @Override
-    public Guest updateGuest(Long id, Guest guest) {
+    public Guest updateGuest(Long id, Guest g) {
         Guest existing = getGuestById(id);
-        existing.setName(guest.getName());
-        existing.setEmail(guest.getEmail());
-        return guestRepository.save(existing);
+        existing.setFullName(g.getFullName());
+        return repo.save(existing);
     }
 
-    @Override
     public void deactivateGuest(Long id) {
-        Guest guest = getGuestById(id);
-        guest.setActive(false);
-        guestRepository.save(guest);
+        Guest g = getGuestById(id);
+        g.setActive(false);
     }
 }
