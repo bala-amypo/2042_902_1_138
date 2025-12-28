@@ -20,7 +20,7 @@ public class OpenApiConfig {
                         .version("1.0")
                         .description("API for hotel management system with digital keys"))
                 .servers(List.of(
-                        new Server().url("http://localhost:9001").description("Local server")
+                        new Server().url("https://9057.408procr.amypo.ai/").description("Local server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new io.swagger.v3.oas.models.Components()
