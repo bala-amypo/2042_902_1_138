@@ -10,7 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 @Service
-public class GuestServiceImpl {
+public class GuestServiceImpl implements GuestService {
+    
+
+
 
     private final GuestRepository repo;
     private final PasswordEncoder encoder;
