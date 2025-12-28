@@ -16,28 +16,16 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-
-        SecurityScheme bearerAuthScheme = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
-                .in(SecurityScheme.In.HEADER)
-                .name("Authorization");
-
         return new OpenAPI()
-                .servers(List.of(
-                        new Server().url("https://9057.408procr.amypo.ai/")
-                ))
-                .info(new Info()
-                        .title("Your API Docs")
-                        .version("1.0.0")
-                        .description("Portal APIs with JWT Authentication")
-                )
+                .info(new Info().title("Demo API").version("1.0"))
+                .addServersItem(new Server().url("/"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
-                        .addSecuritySchemes("bearerAuth", bearerAuthScheme)
-                )
-                .addSecurityItem(new SecurityRequirement()
-                        .addList("bearerAuth")
-                );
+                        .addSecuritySchemes("bearerAuth",
+                                new SecurityScheme()
+                                        .name("bearerAuth")
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 }
