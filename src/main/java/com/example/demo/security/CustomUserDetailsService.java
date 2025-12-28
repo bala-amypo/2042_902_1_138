@@ -2,10 +2,8 @@ package com.example.demo.security;
 
 import com.example.demo.model.Guest;
 import com.example.demo.repository.GuestRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,22 +11,18 @@ import java.util.List;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private GuestRepository guestRepository;
+    private final GuestRepository repo;
+
+    public CustomUserDetailsService(GuestRepository repo) {
+        this.repo = repo;
+    }
 
     @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) {
+        Guest g = repo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Not found"));
 
-        Guest guest = guestRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + email));
-
-        return new CustomUserDetails(
-                guest.getId(),
-                guest.getEmail(),
-                guest.getPassword(),
-                List.of(new SimpleGrantedAuthority(guest.getRole()))
-        );
+        return new User(g.getEmail(), g.getPassword(),
+                List.of(new SimpleGrantedAuthority(g.getRole())));
     }
 }
