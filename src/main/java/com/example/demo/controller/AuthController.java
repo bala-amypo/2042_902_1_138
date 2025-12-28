@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication")
+@Tag(name = "Authentication", description = "Login and Registration")
 public class AuthController {
 
     private final GuestService guestService;
@@ -40,7 +40,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
         Guest guest = new Guest();
         guest.setEmail(request.getEmail());
-        guest.setPassword(request.getPassword());
+        guest.setPassword(request.getPassword()); // Service will encode this
         guest.setFullName(request.getFullName());
         guest.setPhoneNumber(request.getPhoneNumber());
         guest.setRole(request.getRole() != null ? request.getRole() : "ROLE_USER");

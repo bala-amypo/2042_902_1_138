@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/access-logs")
-@Tag(name = "Access Logs")
+@RequestMapping("/api/logs")
+@Tag(name = "Access Logs", description = "Access Logging")
 public class AccessLogController {
 
     private final AccessLogService accessLogService;
@@ -26,16 +26,15 @@ public class AccessLogController {
         return ResponseEntity.ok(accessLogService.createLog(log));
     }
 
-    @GetMapping("/key/{keyId}")
-    @Operation(summary = "Get logs for digital key")
-    public ResponseEntity<List<AccessLog>> getLogsForKey(@Parameter(description = "Key ID") @PathVariable Long keyId) {
-        return ResponseEntity.ok(accessLogService.getLogsForKey(keyId));
-    }
-
     @GetMapping("/guest/{guestId}")
     @Operation(summary = "Get logs for guest")
     public ResponseEntity<List<AccessLog>> getLogsForGuest(@Parameter(description = "Guest ID") @PathVariable Long guestId) {
         return ResponseEntity.ok(accessLogService.getLogsForGuest(guestId));
     }
-}
 
+    @GetMapping("/key/{keyId}")
+    @Operation(summary = "Get logs for specific key")
+    public ResponseEntity<List<AccessLog>> getLogsForKey(@PathVariable Long keyId) {
+        return ResponseEntity.ok(accessLogService.getLogsForKey(keyId));
+    }
+}
