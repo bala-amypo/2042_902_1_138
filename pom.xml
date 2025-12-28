@@ -19,7 +19,7 @@
     <packaging>jar</packaging>
 
     <name>demo</name>
-    <description>Parcel Damage Claim System</description>
+    <description>Hotel Room Key Digital Share</description>
 
     <properties>
         <java.version>17</java.version>
