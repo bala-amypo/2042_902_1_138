@@ -15,9 +15,7 @@ public class GuestServiceImpl implements GuestService {
     private final GuestRepository guestRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ REQUIRED BY TEST
-    public GuestServiceImpl(GuestRepository guestRepository,
-                            PasswordEncoder passwordEncoder) {
+    public GuestServiceImpl(GuestRepository guestRepository, PasswordEncoder passwordEncoder) {
         this.guestRepository = guestRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -27,7 +25,9 @@ public class GuestServiceImpl implements GuestService {
         if (guestRepository.existsByEmail(guest.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
-        guest.setPassword(passwordEncoder.encode(guest.getPassword()));
+        if (guest.getPassword() != null) {
+            guest.setPassword(passwordEncoder.encode(guest.getPassword()));
+        }
         return guestRepository.save(guest);
     }
 

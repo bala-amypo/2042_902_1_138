@@ -19,7 +19,8 @@ public class RoomBookingServiceImpl implements RoomBookingService {
 
     @Override
     public RoomBooking createBooking(RoomBooking booking) {
-        if (booking.getCheckInDate().isAfter(booking.getCheckOutDate())) {
+        if (booking.getCheckInDate() != null && booking.getCheckOutDate() != null && 
+            booking.getCheckInDate().isAfter(booking.getCheckOutDate())) {
             throw new IllegalArgumentException("Check-in date must be before check-out date");
         }
         return roomBookingRepository.save(booking);
