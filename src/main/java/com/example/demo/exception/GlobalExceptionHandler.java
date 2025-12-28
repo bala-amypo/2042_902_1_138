@@ -66,8 +66,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDTO<Object>> handleGeneric(Exception ex) {
+        ex.printStackTrace(); // Print stack trace to console
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponseDTO<>(false, "Internal server error", null));
+                .body(new ApiResponseDTO<>(false, "Internal server error: " + ex.getMessage(), null));
     }
 }
