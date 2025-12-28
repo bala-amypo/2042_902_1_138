@@ -1,13 +1,20 @@
 package com.example.demo.exception;
 
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public String handle(ResourceNotFoundException ex) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNotFound(ResourceNotFoundException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleBadRequest(IllegalArgumentException ex) {
         return ex.getMessage();
     }
 }

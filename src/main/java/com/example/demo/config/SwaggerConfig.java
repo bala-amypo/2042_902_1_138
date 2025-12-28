@@ -17,7 +17,6 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
 
-        // Bearer token security scheme (this enables Authorize button)
         SecurityScheme bearerAuthScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
@@ -26,23 +25,19 @@ public class SwaggerConfig {
                 .name("Authorization");
 
         return new OpenAPI()
-                // KEEP YOUR SERVER URL
                 .servers(List.of(
                         new Server().url("https://9057.408procr.amypo.ai/")
                 ))
                 .info(new Info()
                         .title("Your API Docs")
                         .version("1.0.0")
+                        .description("Portal APIs with JWT Authentication")
                 )
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", bearerAuthScheme)
                 )
-                //  THIS IS WHAT MAKES AUTHORIZE BUTTON APPEAR
                 .addSecurityItem(new SecurityRequirement()
                         .addList("bearerAuth")
                 );
     }
 }
-
-
-
