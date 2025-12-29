@@ -54,7 +54,7 @@
             <version>8.0.33</version>
         </dependency>
 
-        <!-- H2 Database (for testing / in-memory) -->
+        <!-- H2 Database (for testing / dev) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -87,7 +87,7 @@
             <version>1.7.0</version>
         </dependency>
 
-        <!-- Spring Boot Test (JUnit + Mockito + Spring Test) -->
+        <!-- Spring Boot Test (includes spring-test, Mockito, AssertJ) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -100,27 +100,11 @@
             </exclusions>
         </dependency>
 
-        <!-- Spring TestNG Integration (VERSION IS REQUIRED) -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test-testng</artifactId>
-            <version>5.3.31</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- TestNG -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>7.9.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Mockito -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
 
