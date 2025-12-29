@@ -23,7 +23,7 @@ public class RoomBooking {
     private Guest guest;
 
     // ✅ MANY-TO-MANY REQUIRED BY TEST
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "booking_roommates",
         joinColumns = @JoinColumn(name = "booking_id"),
