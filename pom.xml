@@ -6,10 +6,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ✅ MUST USE SPRING BOOT 2.x FOR TESTNG -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>2.7.18</version>
         <relativePath/>
     </parent>
 
@@ -79,25 +80,30 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Swagger -->
+        <!-- Swagger / OpenAPI -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.3.0</version>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.7.0</version>
         </dependency>
 
-        <!-- Spring Boot Test -->
+        <!-- ✅ REQUIRED FOR @SpringBootTest, @MockBean -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- ✅ Spring + TestNG integration (VERSION FIXED) -->
+        <!-- ✅ REQUIRED FOR TestNG + Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test-testng</artifactId>
-            <version>6.1.6</version>
             <scope>test</scope>
         </dependency>
 
@@ -109,11 +115,19 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -121,12 +135,13 @@
     <build>
         <plugins>
 
+            <!-- Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Force TestNG execution -->
+            <!-- ✅ FORCE TESTNG EXECUTION -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
